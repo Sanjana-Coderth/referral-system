@@ -6,7 +6,7 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Referral extends Model
+class Wallet extends Model
 {
     use HasFactory;
 
@@ -15,28 +15,27 @@ class Referral extends Model
 
     protected $fillable = [
         'user_id',
-        'referred_user_id',
-        'reward'
+        'balance'
     ];
 
     protected static function boot()
     {
         parent::boot();
 
-        static::creating(function ($referral) {
-            $referral->id = (string) Str::uuid();
+        static::creating(function ($wallet) {
+            $wallet->id = (string) Str::uuid();
         });
     }
 
-    // 🔗 Referrer (who invited)
+    // 🔗 Belongs to user
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
-    // 🔗 Referred user
-    public function referredUser()
+    // 💰 Transactions
+    public function transactions()
     {
-        return $this->belongsTo(User::class, 'referred_user_id');
+        return $this->hasMany(WalletTransaction::class);
     }
 }
