@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\AuthService;
+use Illuminate\Http\JsonResponse;
+use OpenApi\Annotations as OA;
 
 class AuthController extends Controller
 {
@@ -14,26 +16,32 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
-    // Register
-    public function register(Request $request)
+    /**
+     * @OA\Post(
+     *     path="/register",
+     *     summary="User Register",
+     *     tags={"Auth"},
+     *     operationId="registerUser",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password","password_confirmation"},
+     *             @OA\Property(property="name", type="string", example="Priyanka"),
+     *             @OA\Property(property="email", type="string", example="test@gmail.com"),
+     *             @OA\Property(property="password", type="string", example="123456"),
+     *             @OA\Property(property="password_confirmation", type="string", example="123456")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User registered successfully"
+     *     )
+     * )
+     */
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $user = $this->authService->register($request->all());
+        $result = $this->authService->register($request->validated());
 
-        return response()->json([
-            'message' => 'User Registered',
-            'data' => $user
-        ]);
-    }
-
-    // Login
-    public function login(Request $request)
-    {
-        $data = $this->authService->login($request->all());
-
-        if (!$data) {
-            return response()->json(['message' => 'Invalid Credentials'], 401);
-        }
-
-        return response()->json($data);
+        return response()->json($result);
     }
 }

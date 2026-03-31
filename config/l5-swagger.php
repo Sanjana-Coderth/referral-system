@@ -12,7 +12,7 @@ return [
                 /*
                  * Route for accessing api documentation interface
                  */
-                'api' => 'api/documentation',
+                'api' => 'api/docs',
             ],
             'paths' => [
                 /*
@@ -88,9 +88,9 @@ return [
              */
             'views' => base_path('resources/views/vendor/l5-swagger'),
 
-            /*
+            /*  
              * Edit to set the api's base path
-             */
+             */ 
             'base' => env('L5_SWAGGER_BASE_PATH', null),
 
             /*
