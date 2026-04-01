@@ -58,7 +58,8 @@ public function login(LoginRequest $request): JsonResponse
      *             @OA\Property(property="name", type="string", example="Priyanka"),
      *             @OA\Property(property="email", type="string", example="test@gmail.com"),
      *             @OA\Property(property="password", type="string", example="123456"),
-     *             @OA\Property(property="password_confirmation", type="string", example="123456")
+     *             @OA\Property(property="password_confirmation", type="string", example="123456"),
+     *             @OA\Property(property="referred_by_code", type="string", example="9AEC25AB")
      *         )
      *     ),
      *     @OA\Response(
@@ -77,6 +78,7 @@ public function login(LoginRequest $request): JsonResponse
             'data' => $result['data'],
         ], 201);
     }
+    
      /**
      * @OA\Post(
      *     path="/forgot-password",

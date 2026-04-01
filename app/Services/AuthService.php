@@ -42,11 +42,18 @@ class AuthService
 
     public function register($data)
     {
+        $referrer = null;
+
+        if (!empty($data['referred_by_code'])) {
+            $referrer = User::where('referral_code', $data['referred_by_code'])->first();
+        }
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => bcrypt($data['password']),
             'referral_code' => $this->generateReferralCode(),
+            'referred_by' => $referrer ? $referrer->id : null,
         ]);
 
         return [
