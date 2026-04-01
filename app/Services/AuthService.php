@@ -64,43 +64,39 @@ class AuthService
             'data' => $user
         ];
     }
-    public function getToken($user, $login = true): array
-    {
-        // 🔹 Access Token Expiry
-        $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
+public function getToken($user, $remember = false): array
+{
+    // 🔹 Access Token Expiry
+    $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
 
-        $data = [
-            'token' => $user->createToken(
-                'access_token',
-                ['*'],
-                $token_expires_at
-            )->plainTextToken,
-            'token_expires_at' => $token_expires_at,
-        ];
+    $data = [
+        'token' => $user->createToken(
+            'access_token',
+            ['*'],
+            $token_expires_at
+        )->plainTextToken,
+        'token_expires_at' => $token_expires_at,
+    ];
 
-        if ($login) {
-
-            // 🔥 Proper if-else logic (NO ternary)
-            if (request()->boolean('remember_me')) {
-                // 1 year
-                $refresh_token_expires_at = now()->addMinutes(config('sanctum.expiration'));
-            } else {
-                // 7 days
-                $refresh_token_expires_at = now()->addMinutes(config('sanctum.rt_expiration'));
-            }
-
-            $data['refresh_token'] = $user->createToken(
-                'refresh_token',
-                ['issue-access-token'],
-                $refresh_token_expires_at
-            )->plainTextToken;
-
-            $data['refresh_token_expires_at'] = $refresh_token_expires_at;
-        }
-
-        return $data;
+    // 🔥 Refresh Token ALWAYS generate
+    if ($remember) {
+        // 1 year
+        $refresh_token_expires_at = now()->addMinutes(config('sanctum.expiration'));
+    } else {
+        // 7 days
+        $refresh_token_expires_at = now()->addMinutes(config('sanctum.rt_expiration'));
     }
 
+    $data['refresh_token'] = $user->createToken(
+        'refresh_token',
+        ['issue-access-token'],
+        $refresh_token_expires_at
+    )->plainTextToken;
+
+    $data['refresh_token_expires_at'] = $refresh_token_expires_at;
+
+    return $data;
+}
     public function refreshAccessToken(Request $request): array
     {
         $user = $request->user();
