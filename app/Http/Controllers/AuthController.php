@@ -11,39 +11,37 @@ use OpenApi\Annotations as OA;
 
 class AuthController extends Controller
 {
-    protected $authService;
+    protected AuthService $authService;
 
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
     }
-/**
- * @OA\Post(
- *     path="/login",
- *     summary="User Login",
- *     tags={"Auth"},
- *     operationId="loginUser",
- *     @OA\RequestBody(
- *         required=true,
- *         @OA\JsonContent(
- *             required={"email","password"},
- *             @OA\Property(property="email", type="string", example="test@gmail.com"),
- *             @OA\Property(property="password", type="string", example="123456"),
- *             @OA\Property(property="remember_me", type="boolean", example=true)
- *         )
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="User login successfully"
- *     )
- * )
- */
-public function login(LoginRequest $request): JsonResponse
-{
-    $result = $this->authService->login($request->validated());
 
-    return response()->json($result);
-}
+    /**
+     * @OA\Post(
+     *     path="/login",
+     *     summary="User Login",
+     *     tags={"Auth"},
+     *     operationId="loginUser",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", example="test@gmail.com"),
+     *             @OA\Property(property="password", type="string", example="123456"),
+     *             @OA\Property(property="remember_me", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="User login successfully")
+     * )
+     */
+    public function login(LoginRequest $request): JsonResponse
+    {
+        return response()->json(
+            $this->authService->login($request->validated())
+        );
+    }
 
     /**
      * @OA\Post(
@@ -62,24 +60,54 @@ public function login(LoginRequest $request): JsonResponse
      *             @OA\Property(property="referred_by_code", type="string", example="9AEC25AB")
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="User registered successfully"
-     *     )
+     *     @OA\Response(response=201, description="User registered successfully")
      * )
      */
     public function register(RegisterRequest $request): JsonResponse
     {
         $result = $this->authService->register($request->validated());
 
-        return response()->json([
-            'status' => true,
-            'message' => $result['message'],
-            'data' => $result['data'],
-        ], 201);
+        return response()->json($result, 201);
     }
-    
-     /**
+
+    /**
+     * @OA\Post(
+     *     path="/refresh-token",
+     *     summary="Refresh Access Token",
+     *     tags={"Auth"},
+     *     operationId="refreshToken",
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="refresh_token",
+     *                 type="string",
+     *                 example="1|abcdef123456"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="New access token generated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="access_token", type="string", example="1|newtoken123"),
+     *             @OA\Property(property="access_expires", type="string", example="2026-04-01 14:00:00")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     )
+     * )
+     */
+    public function refreshToken(Request $request): JsonResponse
+    {
+        return response()->json(
+            $this->authService->refreshAccessToken($request)
+        );
+    }
+
+    /**
      * @OA\Post(
      *     path="/forgot-password",
      *     summary="Forgot Password",
@@ -92,10 +120,7 @@ public function login(LoginRequest $request): JsonResponse
      *             @OA\Property(property="email", type="string", example="test@gmail.com")
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Reset link sent successfully"
-     *     )
+     *     @OA\Response(response=200, description="Reset link sent successfully")
      * )
      */
     public function forgotPassword(Request $request): JsonResponse
@@ -104,9 +129,9 @@ public function login(LoginRequest $request): JsonResponse
             'email' => 'required|email'
         ]);
 
-        $result = $this->authService->forgotPassword($request->email);
-
-        return response()->json($result);
+        return response()->json(
+            $this->authService->forgotPassword($request->email)
+        );
     }
 
     /**
@@ -125,10 +150,7 @@ public function login(LoginRequest $request): JsonResponse
      *             @OA\Property(property="password_confirmation", type="string", example="123456")
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Password reset successful"
-     *     )
+     *     @OA\Response(response=200, description="Password reset successful")
      * )
      */
     public function resetPassword(Request $request): JsonResponse
@@ -139,8 +161,8 @@ public function login(LoginRequest $request): JsonResponse
             'password' => 'required|confirmed|min:6',
         ]);
 
-        $result = $this->authService->resetPasswordWeb($request->all());
-
-        return response()->json($result);
+        return response()->json(
+            $this->authService->resetPasswordWeb($request->all())
+        );
     }
 }

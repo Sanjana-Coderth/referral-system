@@ -4,41 +4,43 @@ namespace App\Services;
 
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\AuthenticationException;
 
 class AuthService
 {
-  
- public function login($data)
-{
-    if (!Auth::attempt([
-        'email' => $data['email'],
-        'password' => $data['password']
-    ])) {
+
+    public function login($data)
+    {
+        if (!Auth::attempt([
+            'email' => $data['email'],
+            'password' => $data['password']
+        ])) {
+            return [
+                'status' => false,
+                'message' => 'Invalid credentials'
+            ];
+        }
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $remember = $data['remember_me'] ?? false;
+
+        $tokenData = $this->getToken($user, $remember);
+
         return [
-            'status' => false,
-            'message' => 'Invalid credentials'
+            'status' => true,
+            'message' => 'Login successful',
+            'remember_me' => $remember,
+            'tokens' => $tokenData,
+            'data' => $user
         ];
     }
-
-    /** @var \App\Models\User $user */
-    $user = Auth::user();
-
-    $remember = $data['remember_me'] ?? false;
-
-  $tokenData = $this->getToken($user, $remember);
-
-    return [
-        'status' => true,
-        'message' => 'Login successful',
-        'remember_me' => $remember,
-        'tokens' => $tokenData,
-        'data' => $user
-    ];
-}
 
     public function register($data)
     {
@@ -64,64 +66,85 @@ class AuthService
     }
 
 
-public function getToken($user, $remember = false): array
-{
-    // 🔥 Access Token Expiry (ONLY CURRENT TIME)
-    $accessTokenExpiry = now(); // ✅ current date/time
+    public function getToken($user, $remember = false): array
+    {
+        // 🔥 Access Token Expiry (ONLY CURRENT TIME)
+        $accessTokenExpiry = now(); // ✅ current date/time
 
-    $data = [
-        'access_token' => $user->createToken(
-            'access_token',
-            ['*']
-        )->plainTextToken,
-        'access_token_expires_at' => $accessTokenExpiry,
-    ];
+        $data = [
+            'access_token' => $user->createToken(
+                'access_token',
+                ['*']
+            )->plainTextToken,
+            'access_token_expires_at' => $accessTokenExpiry,
+        ];
 
-    // 🔥 Refresh Token Expiry (as per logic)
-    $refreshTokenExpiry = $remember
-        ? now()->addYear()     // 1 year
-        : now()->addDays(7);   // 7 days
+        // 🔥 Refresh Token Expiry (as per logic)
+        $refreshTokenExpiry = $remember
+            ? now()->addYear()     // 1 year
+            : now()->addDays(7);   // 7 days
 
-    $data['refresh_token'] = $user->createToken(
-        'refresh_token',
-        ['refresh']
-    )->plainTextToken;
+        $data['refresh_token'] = $user->createToken(
+            'refresh_token',
+            ['refresh']
+        )->plainTextToken;
 
-    $data['refresh_token_expires_at'] = $refreshTokenExpiry;
+        $data['refresh_token_expires_at'] = $refreshTokenExpiry;
 
-    return $data;
-}
-public function forgotPassword(string $email)
-{
-    $status = Password::broker('users')->sendResetLink([
-        'email' => $email
-    ]);
+        return $data;
+    }
 
-    return [
-        'status' => $status === Password::RESET_LINK_SENT,
-        'message' => __($status)
-    ];
-}
+    public function refreshAccessToken(Request $request): array
+    {
+        $user = $request->user();
 
-public function resetPasswordWeb(array $data)
-{
-    $status = Password::broker('users')->reset(
-        $data,
-        function ($user) use ($data) {
-
-            $user->forceFill([
-                'password' => $data['password']
-            ])->save();
-
-            event(new PasswordReset($user));
+        if (!$user) {
+            throw new AuthenticationException('Unauthenticated.');
         }
-    );
 
-    return [
-        'status' => $status === Password::PASSWORD_RESET,
-        'message' => __($status)
-    ];
-}
+        // 🔥 old access tokens delete
+        $user->tokens()->where('name', 'access_token')->delete();
+
+        // 🔥 expiry (2 hours)
+        $accessExpiresAt = Carbon::now()->addHours(2);
+
+        // 🔥 new access token
+        $accessToken = $user->createToken('access_token')->plainTextToken;
+
+        return [
+            'access_token'   => $accessToken,
+            'access_expires' => $accessExpiresAt->toDateTimeString(),
+        ];
+    }
+    public function forgotPassword(string $email)
+    {
+        $status = Password::broker('users')->sendResetLink([
+            'email' => $email
+        ]);
+
+        return [
+            'status' => $status === Password::RESET_LINK_SENT,
+            'message' => __($status)
+        ];
+    }
+
+    public function resetPasswordWeb(array $data)
+    {
+        $status = Password::broker('users')->reset(
+            $data,
+            function ($user) use ($data) {
+                $user->forceFill([
+                    'password' => $data['password']
+                ])->save();
+                event(new PasswordReset($user));
+            }
+        );
+
+        return [
+            'status' => $status === Password::PASSWORD_RESET,
+            'message' => __($status)
+        ];
+    }
 
     public function passwordUpdate(array $data): void
     {
