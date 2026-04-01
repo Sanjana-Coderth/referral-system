@@ -47,7 +47,11 @@ return [
     |
     */
 
-    'expiration' => null,
+     
+    'expiration' => 365 * 24 * 60, // 1 Years
+    't_expiration' => (int) env('SESSION_LIFETIME_API', 2 * 60), // Two hour
+    'rt_expiration' => 7 * 24 * 60, // 7 Days
+
 
     /*
     |--------------------------------------------------------------------------

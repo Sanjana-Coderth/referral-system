@@ -64,32 +64,39 @@ class AuthService
             'data' => $user
         ];
     }
-
-
-    public function getToken($user, $remember = false): array
+    public function getToken($user, $login = true): array
     {
-        // 🔥 Access Token Expiry (ONLY CURRENT TIME)
-        $accessTokenExpiry = now(); // ✅ current date/time
+        // 🔹 Access Token Expiry
+        $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
 
         $data = [
-            'access_token' => $user->createToken(
+            'token' => $user->createToken(
                 'access_token',
-                ['*']
+                ['*'],
+                $token_expires_at
             )->plainTextToken,
-            'access_token_expires_at' => $accessTokenExpiry,
+            'token_expires_at' => $token_expires_at,
         ];
 
-        // 🔥 Refresh Token Expiry (as per logic)
-        $refreshTokenExpiry = $remember
-            ? now()->addYear()     // 1 year
-            : now()->addDays(7);   // 7 days
+        if ($login) {
 
-        $data['refresh_token'] = $user->createToken(
-            'refresh_token',
-            ['refresh']
-        )->plainTextToken;
+            // 🔥 Proper if-else logic (NO ternary)
+            if (request()->boolean('remember_me')) {
+                // 1 year
+                $refresh_token_expires_at = now()->addMinutes(config('sanctum.expiration'));
+            } else {
+                // 7 days
+                $refresh_token_expires_at = now()->addMinutes(config('sanctum.rt_expiration'));
+            }
 
-        $data['refresh_token_expires_at'] = $refreshTokenExpiry;
+            $data['refresh_token'] = $user->createToken(
+                'refresh_token',
+                ['issue-access-token'],
+                $refresh_token_expires_at
+            )->plainTextToken;
+
+            $data['refresh_token_expires_at'] = $refresh_token_expires_at;
+        }
 
         return $data;
     }
