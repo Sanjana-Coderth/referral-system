@@ -12,10 +12,11 @@ class LoginRequest extends FormRequest
     }
 
     public function rules(): array
-    {
-        return [
-            'email' => 'required|email',
-            'password' => 'required',
-        ];
-    }
+{
+    return [
+        'email' => 'required|email',
+        'password' => 'required|min:6',
+        'remember_me' => 'nullable|boolean',
+    ];
+}
 }
