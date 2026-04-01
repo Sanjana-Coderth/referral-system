@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Annotations as OA;
@@ -14,6 +15,33 @@ class AuthController extends Controller
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/login",
+     *     summary="User Login",
+     *     tags={"Auth"},
+     *     operationId="loginUser",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", example="test@gmail.com"),
+     *             @OA\Property(property="password", type="string", example="123456")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User login successfully"
+     *     )
+     * )
+     */
+    public function login(LoginRequest $request): JsonResponse
+    {
+        $result = $this->authService->login($request->validated());
+
+        return response()->json($result);
     }
 
     /**
@@ -33,7 +61,7 @@ class AuthController extends Controller
      *         )
      *     ),
      *     @OA\Response(
-     *         response=200,
+     *         response=201,
      *         description="User registered successfully"
      *     )
      * )
@@ -42,6 +70,10 @@ class AuthController extends Controller
     {
         $result = $this->authService->register($request->validated());
 
-        return response()->json($result);
+        return response()->json([
+            'status' => true,
+            'message' => $result['message'],
+            'data' => $result['data'],
+        ], 201);
     }
 }
