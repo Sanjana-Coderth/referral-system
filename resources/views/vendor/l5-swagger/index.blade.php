@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ $documentationTitle }}</title>
-    <link rel="stylesheet" type="text/css" href="{{ l5_swagger_asset($documentation, 'swagger-ui.css') }}">
-    <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-32x32.png') }}" sizes="32x32"/>
-    <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-16x16.png') }}" sizes="16x16"/>
+
+    <link rel="stylesheet" type="text/css" href="/swagger-ui/asset/swagger-ui.css">
+
+    <link rel="icon" type="image/png" href="/swagger-ui/asset/favicon-32x32.png" sizes="32x32"/>
+    <link rel="icon" type="image/png" href="/swagger-ui/asset/favicon-16x16.png" sizes="16x16"/>
+
     <style>
     html
     {
@@ -25,6 +28,7 @@
       background: #fafafa;
     }
     </style>
+
     @if(config('l5-swagger.defaults.ui.display.dark_mode'))
         <style>
             body#dark-mode,
@@ -119,8 +123,9 @@
 <body @if(config('l5-swagger.defaults.ui.display.dark_mode')) id="dark-mode" @endif>
 <div id="swagger-ui"></div>
 
-<script src="{{ l5_swagger_asset($documentation, 'swagger-ui-bundle.js') }}"></script>
-<script src="{{ l5_swagger_asset($documentation, 'swagger-ui-standalone-preset.js') }}"></script>
+<script src="/swagger-ui/asset/swagger-ui-bundle.js"></script>
+<script src="/swagger-ui/asset/swagger-ui-standalone-preset.js"></script>
+
 <script>
     window.onload = function() {
         const urls = [];
@@ -129,7 +134,6 @@
             urls.push({name: "{{ $title }}", url: "{{ $url }}"});
         @endforeach
 
-        // Build a system
         const ui = SwaggerUIBundle({
             dom_id: '#swagger-ui',
             urls: urls,
@@ -158,7 +162,6 @@
             deepLinking: true,
             filter: {!! config('l5-swagger.defaults.ui.display.filter') ? 'true' : 'false' !!},
             persistAuthorization: "{!! config('l5-swagger.defaults.ui.authorization.persist_authorization') ? 'true' : 'false' !!}",
-
         })
 
         window.ui = ui
