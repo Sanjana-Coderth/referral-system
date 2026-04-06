@@ -3,17 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\AuthService;
+use Illuminate\Http\JsonResponse;
 use OpenApi\Annotations as OA;
 
 class AuthController extends Controller
 {
-    public function __construct(
-        protected AuthService $authService
-    ) {}
+    protected AuthService $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
 
     /**
      * @OA\Post(
@@ -29,16 +32,17 @@ class AuthController extends Controller
      *     @OA\Response(response=200, description="User login successfully")
      * )
      */
-    public function login(LoginRequest $request): JsonResponse
+    public function login(Request $request)
     {
-        $data = $request->validated();
+        $data = [
+            'email' => $request->query('email'),
+            'password' => $request->query('password'),
+            'remember_me' => $request->query('remember_me'),
+        ];
 
-        $result = $this->authService->login($data);
-
-        return response()->json([
-            'message' => $result['message'],
-            ...$result
-        ]);
+        return response()->json(
+            $this->authService->login($data)
+        );
     }
 
     /**
@@ -61,10 +65,7 @@ class AuthController extends Controller
     {
         $result = $this->authService->register($request->validated());
 
-        return response()->json([
-            'message' => $result['message'],
-            'data' => $result['data']
-        ], 201);
+        return response()->json($result, 201);
     }
 
     /**
@@ -75,8 +76,20 @@ class AuthController extends Controller
      *     operationId="refreshToken",
      *     security={{"sanctum":{}}},
      *
-     *     @OA\Response(response=200, description="New access token generated"),
-     *     @OA\Response(response=401, description="Unauthenticated")
+     *     @OA\Parameter(ref="#/components/parameters/refresh_token"),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="New access token generated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="access_token", type="string", example="1|newtoken123"),
+     *             @OA\Property(property="access_expires", type="string", example="2026-04-01 14:00:00")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     )
      * )
      */
     public function refreshToken(Request $request): JsonResponse
@@ -92,10 +105,18 @@ class AuthController extends Controller
      *     summary="Forgot Password",
      *     tags={"Auth"},
      *     operationId="forgotPassword",
+     *     security={{"sanctum":{}}},
      *
      *     @OA\Parameter(ref="#/components/parameters/forgot_email"),
      *
-     *     @OA\Response(response=200, description="Reset link sent successfully")
+     *     @OA\Response(
+     *         response=200,
+     *         description="Reset link sent successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     )
      * )
      */
     public function forgotPassword(Request $request): JsonResponse
@@ -115,13 +136,21 @@ class AuthController extends Controller
      *     summary="Reset Password",
      *     tags={"Auth"},
      *     operationId="resetPassword",
+     *     security={{"sanctum":{}}},
      *
      *     @OA\Parameter(ref="#/components/parameters/reset_email"),
      *     @OA\Parameter(ref="#/components/parameters/reset_token"),
      *     @OA\Parameter(ref="#/components/parameters/reset_password"),
      *     @OA\Parameter(ref="#/components/parameters/reset_password_confirmation"),
      *
-     *     @OA\Response(response=200, description="Password reset successful")
+     *     @OA\Response(
+     *         response=200,
+     *         description="Password reset successful"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     )
      * )
      */
     public function resetPassword(Request $request): JsonResponse
@@ -144,12 +173,22 @@ class AuthController extends Controller
      *     tags={"Auth"},
      *     operationId="logoutUser",
      *     security={{"sanctum":{}}},
-     *
-     *     @OA\Response(response=200, description="User logged out successfully")
+     *     @OA\Response(
+     *         response=200,
+     *         description="User logged out successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Logged out successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated"
+     *     )
      * )
      */
     public function logout(Request $request): JsonResponse
     {
+        // current token delete karo
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
