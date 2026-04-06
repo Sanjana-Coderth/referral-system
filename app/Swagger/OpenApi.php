@@ -26,5 +26,15 @@ use OpenApi\Annotations as OA;
  *     name="Auth",
  *     description="Authentication"
  * )
+ * 
+ * @OA\Tag(
+ *     name="Wallet",
+ *     description="Wallet"
+ * )
+ * 
+ * @OA\Tag(
+ *      name="Dashboard",
+ *      description="Dashboard",
+ * )
  */
 class OpenApi {}
