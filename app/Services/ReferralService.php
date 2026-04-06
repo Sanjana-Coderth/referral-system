@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 
+//
 class ReferralService
 {
     public function getReferrals($user)

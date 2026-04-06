@@ -9,12 +9,9 @@ use OpenApi\Annotations as OA;
 
 class ReferralController extends Controller
 {
-    protected $referralService;
-
-    public function __construct(ReferralService $referralService)
-    {
-        $this->referralService = $referralService;
-    }
+    public function __construct(
+        protected referralService $referralService
+    ){}
 
     /**
      * @OA\Get(

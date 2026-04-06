@@ -9,12 +9,9 @@ use OpenApi\Annotations as OA;
 
 class DashboardController extends Controller
 {
-    protected $dashboardService;
-
-    public function __construct(DashboardService $dashboardService)
-    {
-        $this->dashboardService = $dashboardService;
-    }
+    public function __construct(
+        protected dashboardService $dashboardService
+    ){}
 
     /**
      * @OA\Get(
