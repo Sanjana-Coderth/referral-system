@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\DashboardController;
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -18,5 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/wallet', [WalletController::class, 'balance']);
     Route::get('/wallet-transactions', [WalletController::class, 'transactions']);
+
+    Route::get('/referrals', [ReferralController::class, 'index']);
 
 });

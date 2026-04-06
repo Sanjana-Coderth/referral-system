@@ -43,90 +43,68 @@ class AuthService
         ];
     }
 
-public function register($data)
-{
-    $referrer = null;
+    public function register($data)
+    {
+        $referrer = null;
 
-    // 🔍 Check referral code
-    if (!empty($data['referred_by_code'])) {
-        $referrer = User::where('referral_code', $data['referred_by_code'])->first();
-    }
+        if (!empty($data['referred_by_code'])) {
+            $referrer = User::where('referral_code', $data['referred_by_code'])->first();
+        }
 
-    // 👤 Create user
-    $user = User::create([
-        'name' => $data['name'],
-        'email' => $data['email'],
-        'password' => bcrypt($data['password']),
-        'referral_code' => $this->generateReferralCode(),
-        'referred_by' => $referrer ? $referrer->id : null,
-        'wallet_balance' => 0 // default
-    ]);
-
-    // 💰 Wallet + Referral Reward Logic
-    if ($referrer) {
-
-        // 👉 Referrer ne ₹100
-        $referrer->wallet_balance += 100;
-        $referrer->save();
-
-        WalletTransaction::create([
-            'user_id' => $referrer->id,
-            'amount' => 100,
-            'type' => 'credit',
-            'description' => 'Referral Bonus'
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'referral_code' => $this->generateReferralCode(),
+            'referred_by' => $referrer ? $referrer->id : null,
+            'wallet_balance' => 0 
         ]);
 
-        // 👉 New user ne ₹50
-        $user->wallet_balance += 50;
-        $user->save();
+        if ($referrer) {
 
-        WalletTransaction::create([
-            'user_id' => $user->id,
-            'amount' => 50,
-            'type' => 'credit',
-            'description' => 'Signup Bonus'
-        ]);
+            $referrer->wallet_balance += 100;
+            $referrer->save();
+
+            WalletTransaction::create([
+                'user_id' => $referrer->id,
+                'amount' => 100,
+                'type' => 'credit',
+                'description' => 'Referral Bonus'
+            ]);
+
+            $user->wallet_balance += 50;
+            $user->save();
+
+            WalletTransaction::create([
+                'user_id' => $user->id,
+                'amount' => 50,
+                'type' => 'credit',
+                'description' => 'Signup Bonus'
+            ]);
+        }
+
+        return [
+            'status' => true,
+            'message' => 'User registered successfully',
+            'data' => $user
+        ];
     }
+    public function getToken($user, $remember = false): array
+    {
+        $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
+        $data = ['token' => $user->createToken('access_token',['*'],$token_expires_at)->plainTextToken,'token_expires_at' => $token_expires_at,];
 
-    return [
-        'status' => true,
-        'message' => 'User registered successfully',
-        'data' => $user
-    ];
-}
-public function getToken($user, $remember = false): array
-{
-    // 🔹 Access Token Expiry
-    $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
+        if ($remember) {
+            $refresh_token_expires_at = now()->addMinutes(config('sanctum.expiration'));
+        } else {
+            $refresh_token_expires_at = now()->addMinutes(config('sanctum.rt_expiration'));
+        }
 
-    $data = [
-        'token' => $user->createToken(
-            'access_token',
-            ['*'],
-            $token_expires_at
-        )->plainTextToken,
-        'token_expires_at' => $token_expires_at,
-    ];
+        $data['refresh_token'] = $user->createToken('refresh_token',['issue-access-token'],$refresh_token_expires_at)->plainTextToken;
+        $data['refresh_token_expires_at'] = $refresh_token_expires_at;
 
-    // 🔥 Refresh Token ALWAYS generate
-    if ($remember) {
-        // 1 year
-        $refresh_token_expires_at = now()->addMinutes(config('sanctum.expiration'));
-    } else {
-        // 7 days
-        $refresh_token_expires_at = now()->addMinutes(config('sanctum.rt_expiration'));
+        return $data;
     }
-
-    $data['refresh_token'] = $user->createToken(
-        'refresh_token',
-        ['issue-access-token'],
-        $refresh_token_expires_at
-    )->plainTextToken;
-
-    $data['refresh_token_expires_at'] = $refresh_token_expires_at;
-
-    return $data;
-}
     public function refreshAccessToken(Request $request): array
     {
         $user = $request->user();
@@ -135,13 +113,8 @@ public function getToken($user, $remember = false): array
             throw new AuthenticationException('Unauthenticated.');
         }
 
-        // 🔥 old access tokens delete
         $user->tokens()->where('name', 'access_token')->delete();
-
-        // 🔥 expiry (2 hours)
         $accessExpiresAt = Carbon::now()->addHours(2);
-
-        // 🔥 new access token
         $accessToken = $user->createToken('access_token')->plainTextToken;
 
         return [
