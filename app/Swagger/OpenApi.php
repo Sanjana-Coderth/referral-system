@@ -33,6 +33,11 @@ use OpenApi\Annotations as OA;
  * )
  * 
  * @OA\Tag(
+ *     name="Referral",
+ *     description="Referral"
+ * )
+ * 
+ * @OA\Tag(
  *      name="Dashboard",
  *      description="Dashboard",
  * )
