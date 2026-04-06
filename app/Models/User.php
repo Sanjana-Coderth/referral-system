@@ -41,4 +41,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class, 'referred_by');
     }
+
+    public function transactions()
+{
+    return $this->hasMany(WalletTransaction::class);
+}
+
+
 }

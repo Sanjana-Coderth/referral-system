@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('referral_code')->unique()->nullable();
             $table->uuid('referred_by')->nullable(); 
 
+            $table->decimal('wallet_balance', 10, 2)->default(0);
+
             $table->rememberToken();
             $table->timestamps();
         });
