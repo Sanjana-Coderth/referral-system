@@ -10,7 +10,31 @@ class LoginRequest extends FormRequest
     {
         return true;
     }
-
+/**
+ * @OA\Parameter(
+ *     parameter="login_email",
+ *     name="email",
+ *     in="query",
+ *     required=true,
+ *     @OA\Schema(type="string")
+ * )
+ *
+ * @OA\Parameter(
+ *     parameter="login_password",
+ *     name="password",
+ *     in="query",
+ *     required=true,
+ *     @OA\Schema(type="string")
+ * )
+ *
+ * @OA\Parameter(
+ *     parameter="login_remember",
+ *     name="remember_me",
+ *     in="query",
+ *     required=false,
+ *     @OA\Schema(type="boolean")
+ * )
+ */
     public function rules(): array
 {
     return [

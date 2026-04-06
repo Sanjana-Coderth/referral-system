@@ -18,51 +18,49 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
-    /**
-     * @OA\Post(
-     *     path="/login",
-     *     summary="User Login",
-     *     tags={"Auth"},
-     *     operationId="loginUser",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"email","password"},
-     *             @OA\Property(property="email", type="string", example="test@gmail.com"),
-     *             @OA\Property(property="password", type="string", example="123456"),
-     *             @OA\Property(property="remember_me", type="boolean", example=true)
-     *         )
-     *     ),
-     *     @OA\Response(response=200, description="User login successfully")
-     * )
-     */
-    public function login(LoginRequest $request): JsonResponse
-    {
-        return response()->json(
-            $this->authService->login($request->validated())
-        );
-    }
+   /**
+ * @OA\Post(
+ *     path="/login",
+ *     summary="User Login",
+ *     tags={"Auth"},
+ *     operationId="loginUser",
+ *
+ *     @OA\Parameter(ref="#/components/parameters/login_email"),
+ *     @OA\Parameter(ref="#/components/parameters/login_password"),
+ *     @OA\Parameter(ref="#/components/parameters/login_remember"),
+ *
+ *     @OA\Response(response=200, description="User login successfully")
+ * )
+ */
+  public function login(Request $request)
+{
+    $data = [
+        'email' => $request->query('email'),
+        'password' => $request->query('password'),
+        'remember_me' => $request->query('remember_me'),
+    ];
 
-    /**
-     * @OA\Post(
-     *     path="/register",
-     *     summary="User Register",
-     *     tags={"Auth"},
-     *     operationId="registerUser",
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"name","email","password","password_confirmation"},
-     *             @OA\Property(property="name", type="string", example="Priyanka"),
-     *             @OA\Property(property="email", type="string", example="test@gmail.com"),
-     *             @OA\Property(property="password", type="string", example="123456"),
-     *             @OA\Property(property="password_confirmation", type="string", example="123456"),
-     *             @OA\Property(property="referred_by_code", type="string", example="9AEC25AB")
-     *         )
-     *     ),
-     *     @OA\Response(response=201, description="User registered successfully")
-     * )
-     */
+    return response()->json(
+        $this->authService->login($data)
+    );
+}
+
+  /**
+ * @OA\Post(
+ *     path="/register",
+ *     summary="User Register",
+ *     tags={"Auth"},
+ *     operationId="registerUser",
+ *
+ *     @OA\Parameter(ref="#/components/parameters/register_name"),
+ *     @OA\Parameter(ref="#/components/parameters/register_email"),
+ *     @OA\Parameter(ref="#/components/parameters/register_password"),
+ *     @OA\Parameter(ref="#/components/parameters/register_password_confirmation"),
+ *     @OA\Parameter(ref="#/components/parameters/register_referral"),
+ *
+ *     @OA\Response(response=201, description="User registered successfully")
+ * )
+ */
     public function register(RegisterRequest $request): JsonResponse
     {
         $result = $this->authService->register($request->validated());
@@ -70,23 +68,16 @@ class AuthController extends Controller
         return response()->json($result, 201);
     }
 
-   /**
+/**
  * @OA\Post(
  *     path="/refresh-token",
  *     summary="Refresh Access Token",
  *     tags={"Auth"},
  *     operationId="refreshToken",
  *     security={{"sanctum":{}}},
- *     @OA\RequestBody(
- *         required=false,
- *         @OA\JsonContent(
- *             @OA\Property(
- *                 property="refresh_token",
- *                 type="string",
- *                 example="1|abcdef123456"
- *             )
- *         )
- *     ),
+ *
+ *     @OA\Parameter(ref="#/components/parameters/refresh_token"),
+ *
  *     @OA\Response(
  *         response=200,
  *         description="New access token generated",
@@ -108,20 +99,16 @@ class AuthController extends Controller
     );
 }
 
-    /**
+/**
  * @OA\Post(
  *     path="/forgot-password",
  *     summary="Forgot Password",
  *     tags={"Auth"},
  *     operationId="forgotPassword",
  *     security={{"sanctum":{}}},
- *     @OA\RequestBody(
- *         required=true,
- *         @OA\JsonContent(
- *             required={"email"},
- *             @OA\Property(property="email", type="string", example="test@gmail.com")
- *         )
- *     ),
+ *
+ *     @OA\Parameter(ref="#/components/parameters/forgot_email"),
+ *
  *     @OA\Response(
  *         response=200,
  *         description="Reset link sent successfully"
@@ -150,16 +137,12 @@ class AuthController extends Controller
  *     tags={"Auth"},
  *     operationId="resetPassword",
  *     security={{"sanctum":{}}},
- *     @OA\RequestBody(
- *         required=true,
- *         @OA\JsonContent(
- *             required={"email","token","password","password_confirmation"},
- *             @OA\Property(property="email", type="string", example="test@gmail.com"),
- *             @OA\Property(property="token", type="string", example="reset-token-here"),
- *             @OA\Property(property="password", type="string", example="123456"),
- *             @OA\Property(property="password_confirmation", type="string", example="123456")
- *         )
- *     ),
+ *
+ *     @OA\Parameter(ref="#/components/parameters/reset_email"),
+ *     @OA\Parameter(ref="#/components/parameters/reset_token"),
+ *     @OA\Parameter(ref="#/components/parameters/reset_password"),
+ *     @OA\Parameter(ref="#/components/parameters/reset_password_confirmation"),
+ *
  *     @OA\Response(
  *         response=200,
  *         description="Password reset successful"
