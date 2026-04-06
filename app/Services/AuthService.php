@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -42,28 +43,57 @@ class AuthService
         ];
     }
 
-    public function register($data)
-    {
-        $referrer = null;
+public function register($data)
+{
+    $referrer = null;
 
-        if (!empty($data['referred_by_code'])) {
-            $referrer = User::where('referral_code', $data['referred_by_code'])->first();
-        }
+    // 🔍 Check referral code
+    if (!empty($data['referred_by_code'])) {
+        $referrer = User::where('referral_code', $data['referred_by_code'])->first();
+    }
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-            'referral_code' => $this->generateReferralCode(),
-            'referred_by' => $referrer ? $referrer->id : null,
+    // 👤 Create user
+    $user = User::create([
+        'name' => $data['name'],
+        'email' => $data['email'],
+        'password' => bcrypt($data['password']),
+        'referral_code' => $this->generateReferralCode(),
+        'referred_by' => $referrer ? $referrer->id : null,
+        'wallet_balance' => 0 // default
+    ]);
+
+    // 💰 Wallet + Referral Reward Logic
+    if ($referrer) {
+
+        // 👉 Referrer ne ₹100
+        $referrer->wallet_balance += 100;
+        $referrer->save();
+
+        WalletTransaction::create([
+            'user_id' => $referrer->id,
+            'amount' => 100,
+            'type' => 'credit',
+            'description' => 'Referral Bonus'
         ]);
 
-        return [
-            'status' => true,
-            'message' => 'User registered successfully',
-            'data' => $user
-        ];
+        // 👉 New user ne ₹50
+        $user->wallet_balance += 50;
+        $user->save();
+
+        WalletTransaction::create([
+            'user_id' => $user->id,
+            'amount' => 50,
+            'type' => 'credit',
+            'description' => 'Signup Bonus'
+        ]);
     }
+
+    return [
+        'status' => true,
+        'message' => 'User registered successfully',
+        'data' => $user
+    ];
+}
 public function getToken($user, $remember = false): array
 {
     // 🔹 Access Token Expiry
