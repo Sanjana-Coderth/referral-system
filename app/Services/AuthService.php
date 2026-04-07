@@ -14,7 +14,6 @@ use Illuminate\Auth\AuthenticationException;
 
 class AuthService
 {
-
     public function login($data)
     {
         if (!Auth::attempt([
@@ -27,10 +26,9 @@ class AuthService
             ];
         }
 
-        /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $remember = $data['remember_me'] ?? false;
+        $remember = filter_var($data['remember_me'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $tokenData = $this->getToken($user, $remember);
 
@@ -49,6 +47,17 @@ class AuthService
 
         if (!empty($data['referred_by_code'])) {
             $referrer = User::where('referral_code', $data['referred_by_code'])->first();
+
+            if ($referrer) {
+                $referralCount = User::where('referred_by', $referrer->id)->count();
+
+                if ($referralCount >= 2) {
+                    return [
+                        'status' => false,
+                        'message' => 'This referral code has reached its limit (only 2 users allowed).'
+                    ];
+                }
+            }
         }
 
         $user = User::create([
