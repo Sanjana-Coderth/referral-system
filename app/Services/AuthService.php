@@ -5,12 +5,11 @@ namespace App\Services;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\AuthenticationException;
+use App\Services\ReferralService;
 
 class AuthService
 {
@@ -44,11 +43,22 @@ class AuthService
     public function register($data)
     {
         $referrer = null;
+        $referralService = new ReferralService(); 
 
         if (!empty($data['referred_by_code'])) {
             $referrer = User::where('referral_code', $data['referred_by_code'])->first();
 
             if ($referrer) {
+
+                $level = $referralService->getUserLevel($referrer);
+
+                if ($level >= 10) {
+                    return [
+                        'status' => false,
+                        'message' => 'Maximum 10 referral levels allowed. Cannot register further.'
+                    ];
+                }
+
                 $referralCount = User::where('referred_by', $referrer->id)->count();
 
                 if ($referralCount >= 2) {
@@ -70,26 +80,7 @@ class AuthService
         ]);
 
         if ($referrer) {
-
-            $referrer->wallet_balance += 100;
-            $referrer->save();
-
-            WalletTransaction::create([
-                'user_id' => $referrer->id,
-                'amount' => 100,
-                'type' => 'credit',
-                'description' => 'Referral Bonus'
-            ]);
-
-            $user->wallet_balance += 50;
-            $user->save();
-
-            WalletTransaction::create([
-                'user_id' => $user->id,
-                'amount' => 50,
-                'type' => 'credit',
-                'description' => 'Signup Bonus'
-            ]);
+            $referralService->distributeLevelIncome($referrer);
         }
 
         return [
@@ -98,10 +89,15 @@ class AuthService
             'data' => $user
         ];
     }
+
     public function getToken($user, $remember = false): array
     {
         $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
-        $data = ['token' => $user->createToken('access_token', ['*'], $token_expires_at)->plainTextToken, 'token_expires_at' => $token_expires_at,];
+
+        $data = [
+            'token' => $user->createToken('access_token', ['*'], $token_expires_at)->plainTextToken,
+            'token_expires_at' => $token_expires_at,
+        ];
 
         if ($remember) {
             $refresh_token_expires_at = now()->addMinutes(config('sanctum.expiration'));
@@ -109,11 +105,17 @@ class AuthService
             $refresh_token_expires_at = now()->addMinutes(config('sanctum.rt_expiration'));
         }
 
-        $data['refresh_token'] = $user->createToken('refresh_token', ['issue-access-token'], $refresh_token_expires_at)->plainTextToken;
+        $data['refresh_token'] = $user->createToken(
+            'refresh_token',
+            ['issue-access-token'],
+            $refresh_token_expires_at
+        )->plainTextToken;
+
         $data['refresh_token_expires_at'] = $refresh_token_expires_at;
 
         return $data;
     }
+
     public function refreshAccessToken(Request $request): array
     {
         $user = $request->user();
@@ -123,6 +125,7 @@ class AuthService
         }
 
         $user->tokens()->where('name', 'access_token')->delete();
+
         $accessExpiresAt = Carbon::now()->addHours(2);
         $accessToken = $user->createToken('access_token')->plainTextToken;
 
@@ -131,6 +134,7 @@ class AuthService
             'access_expires' => $accessExpiresAt->toDateTimeString(),
         ];
     }
+
     public function forgotPassword(string $email)
     {
         $status = Password::broker('users')->sendResetLink([
@@ -151,6 +155,7 @@ class AuthService
                 $user->forceFill([
                     'password' => $data['password']
                 ])->save();
+
                 event(new PasswordReset($user));
             }
         );
