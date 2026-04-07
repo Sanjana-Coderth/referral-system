@@ -45,9 +45,9 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $data = [
-            'email' => $request->query('email'),
-            'password' => $request->query('password'),
-            'remember_me' => $request->query('remember_me'),
+            'email' => $request->email,
+            'password' => $request->password,
+            'remember_me' => $request->remember_me,
         ];
 
         return response()->json(
