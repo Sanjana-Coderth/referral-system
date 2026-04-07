@@ -15,33 +15,32 @@ use Illuminate\Auth\AuthenticationException;
 class AuthService
 {
 
-    public function login($data)
-    {
-        if (!Auth::attempt([
-            'email' => $data['email'],
-            'password' => $data['password']
-        ])) {
-            return [
-                'status' => false,
-                'message' => 'Invalid credentials'
-            ];
-        }
-
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        $remember = $data['remember_me'] ?? false;
-
-        $tokenData = $this->getToken($user, $remember);
-
+   public function login($data)
+{
+    if (!Auth::attempt([
+        'email' => $data['email'],
+        'password' => $data['password']
+    ])) {
         return [
-            'status' => true,
-            'message' => 'Login successful',
-            'remember_me' => $remember,
-            'tokens' => $tokenData,
-            'data' => $user
+            'status' => false,
+            'message' => 'Invalid credentials'
         ];
     }
+
+    $user = Auth::user();
+
+    $remember = filter_var($data['remember_me'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+    $tokenData = $this->getToken($user, $remember);
+
+    return [
+        'status' => true,
+        'message' => 'Login successful',
+        'remember_me' => $remember,
+        'tokens' => $tokenData,
+        'data' => $user
+    ];
+}
 
     public function register($data)
     {
