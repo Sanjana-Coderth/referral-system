@@ -14,7 +14,7 @@ use Illuminate\Auth\AuthenticationException;
 
 class AuthService
 {
-
+//check
    public function login($data)
 {
     if (!Auth::attempt([
