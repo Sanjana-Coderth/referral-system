@@ -41,22 +41,22 @@ class WalletController extends Controller
     }
 
     /**
- * @OA\Get(
- *     path="/wallet-transactions",
- *     summary="Get Wallet Transactions",
- *     tags={"Wallet"},
- *     operationId="getWalletTransactions",
- *     security={{"sanctum":{}}},
- *
- *     @OA\Response(response=200, description="Wallet transactions fetched successfully"),
- *     @OA\Response(response=400, description="Bad Request"),
- *     @OA\Response(response=401, description="Unauthenticated"),
- *     @OA\Response(response=403, description="Forbidden"),
- *     @OA\Response(response=404, description="Resource Not Found"),
- *     @OA\Response(response=422, description="Unprocessable Entity"),
- *     @OA\Response(response=500, description="Internal Server Error")
- * )
- */
+     * @OA\Get(
+     *     path="/wallet-transactions",
+     *     summary="Get Wallet Transactions",
+     *     tags={"Wallet"},
+     *     operationId="getWalletTransactions",
+     *     security={{"sanctum":{}}},
+     *
+     *     @OA\Response(response=200, description="Wallet transactions fetched successfully"),
+     *     @OA\Response(response=400, description="Bad Request"),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Resource Not Found"),
+     *     @OA\Response(response=422, description="Unprocessable Entity"),
+     *     @OA\Response(response=500, description="Internal Server Error")
+     * )
+     */
     public function transactions(Request $request): JsonResponse
     {
         $transactions = WalletTransaction::where('user_id', $request->user()->id)

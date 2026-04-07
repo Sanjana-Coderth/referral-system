@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class WalletTransaction extends Model
 {
     use HasUuids;
-     protected $fillable = [
+    protected $fillable = [
         'user_id',
         'amount',
         'type',
@@ -16,7 +16,7 @@ class WalletTransaction extends Model
     ];
 
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
+    {
+        return $this->belongsTo(User::class);
+    }
 }
