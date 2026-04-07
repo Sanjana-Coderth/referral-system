@@ -12,7 +12,7 @@ class DashboardService
         $totalReferrals = User::where('referred_by', $user->id)->count();
 
         $referralEarnings = WalletTransaction::where('user_id', $user->id)
-            ->where('description', 'Referral Bonus')
+            ->where('description', 'LIKE', '%Referral Bonus%')
             ->sum('amount');
 
         $transactions = WalletTransaction::where('user_id', $user->id)
