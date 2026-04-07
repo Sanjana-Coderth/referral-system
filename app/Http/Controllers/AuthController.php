@@ -29,15 +29,25 @@ class AuthController extends Controller
      *     @OA\Parameter(ref="#/components/parameters/login_password"),
      *     @OA\Parameter(ref="#/components/parameters/login_remember"),
      *
-     *     @OA\Response(response=200, description="User login successfully")
+     *          @OA\Response(response=200, description="Success",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      ),
+     *      @OA\Response(response=400, description="Bad Request"),
+     *      @OA\Response(response=401, description="Unauthenticated"),
+     *      @OA\Response(response=403, description="Forbidden"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     *      @OA\Response(response=422, description="Unprocessable Entity"),
+     *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
     public function login(Request $request)
     {
         $data = [
-            'email' => $request->email,
-            'password' => $request->password,
-            'remember_me' => $request->remember_me,
+            'email' => $request->query('email'),
+            'password' => $request->query('password'),
+            'remember_me' => $request->query('remember_me'),
         ];
 
         return response()->json(
@@ -58,7 +68,11 @@ class AuthController extends Controller
      *     @OA\Parameter(ref="#/components/parameters/register_password_confirmation"),
      *     @OA\Parameter(ref="#/components/parameters/register_referral"),
      *
-     *     @OA\Response(response=201, description="User registered successfully")
+     *          @OA\Response(response=200, description="Success",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      ),
      * )
      */
     public function register(RegisterRequest $request): JsonResponse
@@ -188,6 +202,7 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
+        // current token delete karo
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
