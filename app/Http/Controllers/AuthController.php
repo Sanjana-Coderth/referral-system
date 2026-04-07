@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Requests\Auth\LoginRequest;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Auth\Events\Verified;
 use OpenApi\Annotations as OA;
 
 class AuthController extends Controller
@@ -114,71 +115,70 @@ class AuthController extends Controller
     }
 
     /**
-     * @OA\Post(
-     *     path="/forgot-password",
-     *     summary="Forgot Password",
-     *     tags={"Auth"},
-     *     operationId="forgotPassword",
-     *     security={{"sanctum":{}}},
-     *
-     *     @OA\Parameter(ref="#/components/parameters/forgot_email"),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Reset link sent successfully"
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated"
-     *     )
-     * )
-     */
-    public function forgotPassword(Request $request): JsonResponse
-    {
-        $request->validate([
-            'email' => 'required|email'
-        ]);
+ * @OA\Post(
+ *     path="/forgot-password",
+ *     summary="Forgot Password",
+ *     tags={"Auth"},
+ *     operationId="forgotPassword",
+ *
+ *     @OA\Parameter(ref="#/components/parameters/forgot_email"),
+ *
+ *     @OA\Response(response=200, description="Success"),
+ *     @OA\Response(response=400, description="Bad Request")
+ * )
+ */
+public function forgotPassword(Request $request): JsonResponse
+{
+    $request->validate([
+        'email' => 'required|email'
+    ]);
 
-        return response()->json(
-            $this->authService->forgotPassword($request->email)
-        );
+        $status = $this->authService->forgotPassword($request->email);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Reset link sent successfully'
+        ]);
+}
+
+/**
+ * @OA\Post(
+ *     path="/reset-password",
+ *     summary="Reset Password",
+ *     tags={"Auth"},
+ *     operationId="resetPassword",
+ *
+ *     @OA\Parameter(ref="#/components/parameters/reset_email"),
+ *     @OA\Parameter(ref="#/components/parameters/reset_token"),
+ *     @OA\Parameter(ref="#/components/parameters/reset_password"),
+ *     @OA\Parameter(ref="#/components/parameters/reset_password_confirmation"),
+ *
+ *     @OA\Response(response=200, description="Success"),
+ *     @OA\Response(response=400, description="Bad Request")
+ * )
+ */
+public function resetPassword(Request $request): JsonResponse
+{
+    $request->validate([
+        'email' => 'required|email',
+        'token' => 'required',
+        'password' => 'required|confirmed|min:6',
+    ]);
+
+    $result = $this->authService->resetPasswordWeb($request->all());
+
+    if ($result['status']) {
+        return response()->json([
+            'status' => true,
+            'message' => 'Your password has been changed successfully.'
+        ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/reset-password",
-     *     summary="Reset Password",
-     *     tags={"Auth"},
-     *     operationId="resetPassword",
-     *     security={{"sanctum":{}}},
-     *
-     *     @OA\Parameter(ref="#/components/parameters/reset_email"),
-     *     @OA\Parameter(ref="#/components/parameters/reset_token"),
-     *     @OA\Parameter(ref="#/components/parameters/reset_password"),
-     *     @OA\Parameter(ref="#/components/parameters/reset_password_confirmation"),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Password reset successful"
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated"
-     *     )
-     * )
-     */
-    public function resetPassword(Request $request): JsonResponse
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'token' => 'required',
-            'password' => 'required|confirmed|min:6',
-        ]);
-
-        return response()->json(
-            $this->authService->resetPasswordWeb($request->all())
-        );
-    }
+    return response()->json([
+        'status' => false,
+        'message' => $result['message']
+    ], 400);
+}
 
     /**
      * @OA\Post(
