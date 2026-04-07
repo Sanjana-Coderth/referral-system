@@ -57,7 +57,7 @@ class AuthService
             'password' => bcrypt($data['password']),
             'referral_code' => $this->generateReferralCode(),
             'referred_by' => $referrer ? $referrer->id : null,
-            'wallet_balance' => 0 
+            'wallet_balance' => 0
         ]);
 
         if ($referrer) {
@@ -92,7 +92,7 @@ class AuthService
     public function getToken($user, $remember = false): array
     {
         $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
-        $data = ['token' => $user->createToken('access_token',['*'],$token_expires_at)->plainTextToken,'token_expires_at' => $token_expires_at,];
+        $data = ['token' => $user->createToken('access_token', ['*'], $token_expires_at)->plainTextToken, 'token_expires_at' => $token_expires_at,];
 
         if ($remember) {
             $refresh_token_expires_at = now()->addMinutes(config('sanctum.expiration'));
@@ -100,7 +100,7 @@ class AuthService
             $refresh_token_expires_at = now()->addMinutes(config('sanctum.rt_expiration'));
         }
 
-        $data['refresh_token'] = $user->createToken('refresh_token',['issue-access-token'],$refresh_token_expires_at)->plainTextToken;
+        $data['refresh_token'] = $user->createToken('refresh_token', ['issue-access-token'], $refresh_token_expires_at)->plainTextToken;
         $data['refresh_token_expires_at'] = $refresh_token_expires_at;
 
         return $data;
