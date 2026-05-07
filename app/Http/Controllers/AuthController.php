@@ -7,6 +7,8 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Annotations as OA;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Auth\Events\Verified;
 
 class AuthController extends Controller
 {
@@ -178,6 +180,72 @@ public function resetPassword(Request $request): JsonResponse
     ], 400);
 }
 
+/**
+     * @OA\Get(
+     *      path="/resend",
+     *      tags={"Auth"},
+     *      security={{"sanctum": {}}},
+     *      summary="Email Resend",
+     *      operationId="Resend",
+     *
+     *      @OA\Response(response=200, description="Success",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      ),
+     *      @OA\Response(response=400, description="Bad Request"),
+     *      @OA\Response(response=401, description="Unauthenticated"),
+     *      @OA\Response(response=403, description="Forbidden"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     *      @OA\Response(response=422, description="Unprocessable Entity"),
+     *      @OA\Response(response=500, description="Internal Server Error")
+     * )
+     */
+    public function resend(): JsonResponse
+    {
+        if (request()->user()->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Already Verified']);
+        }
+        request()->user()->sendEmailVerificationNotification();
+        return response()->json(['message' => 'A new verification ' . (in_array(request()->user()->guard, ['admin', 'user']) ? 'link' : 'OTP') . ' has been sent to the email address you provided during registration.']);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/verify-email/{id}/{hash}",
+     *      tags={"Auth"},
+     *      security={{"sanctum": {}}},
+     *      summary="Email Verify",
+     *      operationId="userVerify",
+     *
+     *      @OA\Parameter(ref="#/components/parameters/id"),
+     *      @OA\Parameter(ref="#/components/parameters/hash"),
+     *      @OA\Parameter(ref="#/components/parameters/expires"),
+     *      @OA\Parameter(ref="#/components/parameters/signature"),
+     *
+     *      @OA\Response(response=200, description="Success",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      ),
+     *      @OA\Response(response=400, description="Bad Request"),
+     *      @OA\Response(response=401, description="Unauthenticated"),
+     *      @OA\Response(response=403, description="Forbidden"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     *      @OA\Response(response=422, description="Unprocessable Entity"),
+     *      @OA\Response(response=500, description="Internal Server Error")
+     * )
+     */
+    public function verifyEmail(EmailVerificationRequest $request): JsonResponse
+    {
+        if (request()->user()->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Already Verified']);
+        }
+        if ($request->user()->markEmailAsVerified()) {
+            event(new Verified($request->user()));
+        }
+        return response()->json(['message' => 'Your email address has been verified successfully!']);
+    }
     /**
      * @OA\Post(
      *     path="/logout",

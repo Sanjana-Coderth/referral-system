@@ -59,4 +59,8 @@ class User extends Authenticatable
     {
         $this->notify(new ResetPassword($token));
     }
+       public function sendEmailVerificationNotification(): void
+{
+    $this->notify(new VerifyEmail());
+}
 }

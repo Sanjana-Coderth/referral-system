@@ -3,6 +3,7 @@
 namespace App\Swagger;
 
 use OpenApi\Annotations as OA;
+
 /**
  * @OA\Info(
  *     title="Referral API",
@@ -37,8 +38,44 @@ use OpenApi\Annotations as OA;
  * )
  * 
  * @OA\Tag(
- *      name="Dashboard",
- *      description="Dashboard",
+ *     name="Dashboard",
+ *     description="Dashboard"
+ * )
+ *
+ * @OA\Parameter(
+ *     parameter="id",
+ *     name="id",
+ *     in="path",
+ *     required=true,
+ *     description="User ID",
+ *     @OA\Schema(type="string")
+ * )
+ *
+ * @OA\Parameter(
+ *     parameter="hash",
+ *     name="hash",
+ *     in="path",
+ *     required=true,
+ *     description="Verification Hash",
+ *     @OA\Schema(type="string")
+ * )
+ *
+ * @OA\Parameter(
+ *     parameter="expires",
+ *     name="expires",
+ *     in="query",
+ *     required=true,
+ *     description="Expiration Timestamp",
+ *     @OA\Schema(type="string")
+ * )
+ *
+ * @OA\Parameter(
+ *     parameter="signature",
+ *     name="signature",
+ *     in="query",
+ *     required=true,
+ *     description="Verification Signature",
+ *     @OA\Schema(type="string")
  * )
  */
 class OpenApi {}

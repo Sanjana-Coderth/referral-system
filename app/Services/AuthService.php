@@ -1,7 +1,7 @@
 <?php
-
+ 
 namespace App\Services;
-
+ 
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\AuthenticationException;
 use App\Services\ReferralService;
-
+ 
 class AuthService
 {
     public function login($data)
@@ -24,13 +24,13 @@ class AuthService
                 'message' => 'Invalid credentials'
             ];
         }
-
+ 
         $user = Auth::user();
-
+ 
         $remember = filter_var($data['remember_me'] ?? false, FILTER_VALIDATE_BOOLEAN);
-
+ 
         $tokenData = $this->getToken($user, $remember);
-
+ 
         return [
             'status' => true,
             'message' => 'Login successful',
@@ -39,28 +39,28 @@ class AuthService
             'data' => $user
         ];
     }
-
+ 
     public function register($data)
     {
         $referrer = null;
-        $referralService = new ReferralService(); 
-
+        $referralService = new ReferralService();
+ 
         if (!empty($data['referred_by_code'])) {
             $referrer = User::where('referral_code', $data['referred_by_code'])->first();
-
+ 
             if ($referrer) {
-
+ 
                 $level = $referralService->getUserLevel($referrer);
-
+ 
                 if ($level >= 10) {
                     return [
                         'status' => false,
                         'message' => 'Maximum 10 referral levels allowed. Cannot register further.'
                     ];
                 }
-
+ 
                 $referralCount = User::where('referred_by', $referrer->id)->count();
-
+ 
                 if ($referralCount >= 2) {
                     return [
                         'status' => false,
@@ -69,7 +69,7 @@ class AuthService
                 }
             }
         }
-
+ 
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
@@ -78,75 +78,79 @@ class AuthService
             'referred_by' => $referrer ? $referrer->id : null,
             'wallet_balance' => 0
         ]);
-
+ 
         if ($referrer) {
             $referralService->distributeLevelIncome($referrer);
         }
+        $tokenData = $this->getToken($user, false);
+ 
+       return [
+    'status' => true,
+    'message' => 'User registered successfully',
 
-        return [
-            'status' => true,
-            'message' => 'User registered successfully',
-            'data' => $user
-        ];
+    'tokens' => $tokenData,
+
+    'data' => $user
+];
     }
-
+ 
     public function getToken($user, $remember = false): array
     {
         $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
-
+ 
         $data = [
             'token' => $user->createToken('access_token', ['*'], $token_expires_at)->plainTextToken,
             'token_expires_at' => $token_expires_at,
         ];
-
+ 
         if ($remember) {
             $refresh_token_expires_at = now()->addMinutes(config('sanctum.expiration'));
         } else {
             $refresh_token_expires_at = now()->addMinutes(config('sanctum.rt_expiration'));
         }
-
+ 
         $data['refresh_token'] = $user->createToken(
             'refresh_token',
             ['issue-access-token'],
             $refresh_token_expires_at
         )->plainTextToken;
-
+ 
         $data['refresh_token_expires_at'] = $refresh_token_expires_at;
-
+ 
         return $data;
     }
-
+ 
     public function refreshAccessToken(Request $request): array
     {
         $user = $request->user();
-
+ 
         if (!$user) {
             throw new AuthenticationException('Unauthenticated.');
         }
-
+ 
         $user->tokens()->where('name', 'access_token')->delete();
-
+ 
         $accessExpiresAt = Carbon::now()->addHours(2);
         $accessToken = $user->createToken('access_token')->plainTextToken;
-
+ 
         return [
             'access_token'   => $accessToken,
             'access_expires' => $accessExpiresAt->toDateTimeString(),
         ];
     }
-
+ 
     public function forgotPassword(string $email)
     {
         $status = Password::broker('users')->sendResetLink([
             'email' => $email
         ]);
-
+ 
         return [
             'status' => $status === Password::RESET_LINK_SENT,
             'message' => __($status)
         ];
     }
-
+ 
     public function resetPasswordWeb(array $data)
     {
         $status = Password::broker('users')->reset(
@@ -155,30 +159,31 @@ class AuthService
                 $user->forceFill([
                     'password' => $data['password']
                 ])->save();
-
+ 
                 event(new PasswordReset($user));
             }
         );
-
+ 
         return [
             'status' => $status === Password::PASSWORD_RESET,
             'message' => __($status)
         ];
     }
-
+ 
     public function passwordUpdate(array $data): void
     {
         request()->user()->update([
             'password' => $data['password']
         ]);
     }
-
+ 
     private function generateReferralCode()
     {
         do {
             $code = strtoupper(substr(md5(uniqid()), 0, 8));
         } while (User::where('referral_code', $code)->exists());
-
+ 
         return $code;
     }
 }
+ 
