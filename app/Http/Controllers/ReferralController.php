@@ -18,7 +18,7 @@ class ReferralController extends Controller
      *     path="/referrals",
      *     summary="Get Referral List",
      *     tags={"Referral"},
-     *     security={{"sanctum":{}}},
+     *     security={{"Bearer": {}}},
      *     @OA\Response(response=200, description="Referral list fetched successfully")
      * )
      */

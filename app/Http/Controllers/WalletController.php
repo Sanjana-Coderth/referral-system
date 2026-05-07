@@ -17,7 +17,7 @@ class WalletController extends Controller
      *     summary="Get Wallet Balance",
      *     tags={"Wallet"},
      *     operationId="getWalletBalance",
-     *     security={{"sanctum":{}}},
+     *     security={{"Bearer": {}}},
      *     @OA\Response(
      *         response=200,
      *         description="Wallet balance fetched successfully",
@@ -46,7 +46,7 @@ class WalletController extends Controller
      *     summary="Get Wallet Transactions",
      *     tags={"Wallet"},
      *     operationId="getWalletTransactions",
-     *     security={{"sanctum":{}}},
+     *     security={{"Bearer": {}}},
      *
      *     @OA\Response(response=200, description="Wallet transactions fetched successfully"),
      *     @OA\Response(response=400, description="Bad Request"),

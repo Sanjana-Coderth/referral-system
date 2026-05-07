@@ -10,7 +10,7 @@ use OpenApi\Annotations as OA;
  * )
  * 
  * @OA\SecurityScheme(
- *     securityScheme="sanctum",
+ *     securityScheme="Bearer",
  *     type="http",
  *     scheme="bearer",
  *     bearerFormat="JWT"
