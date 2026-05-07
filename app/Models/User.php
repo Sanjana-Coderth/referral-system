@@ -17,11 +17,16 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
         'referral_code',
         'referred_by',
-    ];
+        'usdt_wallet_address',
+        'bsc_wallet_address',
+        'image',
+];
 
     protected $hidden = [
         'password',

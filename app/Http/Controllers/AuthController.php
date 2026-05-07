@@ -87,7 +87,7 @@ class AuthController extends Controller
      *     summary="Refresh Access Token",
      *     tags={"Auth"},
      *     operationId="refreshToken",
-     *     security={{"sanctum":{}}},
+     *     security={{"Bearer": {}}},
      *
      *     @OA\Parameter(ref="#/components/parameters/refresh_token"),
      *
@@ -184,7 +184,7 @@ public function resetPassword(Request $request): JsonResponse
      *     summary="User Logout",
      *     tags={"Auth"},
      *     operationId="logoutUser",
-     *     security={{"sanctum":{}}},
+     *     security={{"Bearer": {}}},
      *     @OA\Response(
      *         response=200,
      *         description="User logged out successfully",

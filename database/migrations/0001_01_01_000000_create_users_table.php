@@ -13,17 +13,18 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
-
             $table->string('name');
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-
             $table->string('referral_code')->unique()->nullable();
-            $table->uuid('referred_by')->nullable(); 
-
+            $table->uuid('referred_by')->nullable();
             $table->decimal('wallet_balance', 10, 2)->default(0);
-
+            $table->text('usdt_wallet_address')->nullable()->change();
+            $table->text('bsc_wallet_address')->nullable()->change();
+            $table->string('image')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
