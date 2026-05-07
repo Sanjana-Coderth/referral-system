@@ -25,6 +25,13 @@ class ProfileService
     {
         $user = request()->user();
 
+        if (request()->hasFile('image')) {
+
+            $image = request()->file('image')->store('profile', 'public');
+
+            $data['image'] = $image;
+        }
+
         $user->fill($data);
 
         $user->save();
