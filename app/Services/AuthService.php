@@ -78,6 +78,7 @@ class AuthService
             'referred_by' => $referrer ? $referrer->id : null,
             'wallet_balance' => 0
         ]);
+        $user->sendEmailVerificationNotification();
  
         if ($referrer) {
             $referralService->distributeLevelIncome($referrer);

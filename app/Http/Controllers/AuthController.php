@@ -207,7 +207,9 @@ public function resetPassword(Request $request): JsonResponse
             return response()->json(['message' => 'Already Verified']);
         }
         request()->user()->sendEmailVerificationNotification();
-        return response()->json(['message' => 'A new verification ' . (in_array(request()->user()->guard, ['admin', 'user']) ? 'link' : 'OTP') . ' has been sent to the email address you provided during registration.']);
+        return response()->json([
+    'message' => 'Verification email resent successfully.'
+]);
     }
 
     /**
