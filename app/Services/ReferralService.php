@@ -8,6 +8,7 @@ use App\Models\WalletTransaction;
 
 class ReferralService
 {
+    // GET REFERRALS
     public function getReferrals($user)
     {
         $referrals = User::where('referred_by', $user->id)
@@ -23,6 +24,7 @@ class ReferralService
         });
     }
 
+    // DISTRIBUTE LEVEL INCOME
     public function distributeLevelIncome($referrer)
     {
         $level = 1;
@@ -30,10 +32,15 @@ class ReferralService
 
         while ($current && $level <= 10) {
 
-            $levelData = ReferralLevel::where('level', $level)->first();
+            $levelData = ReferralLevel::where(
+                'level',
+                $level
+            )->first();
 
             if ($levelData) {
+
                 $current->wallet_balance += $levelData->amount;
+
                 $current->save();
 
                 WalletTransaction::create([
@@ -45,16 +52,20 @@ class ReferralService
             }
 
             $current = User::find($current->referred_by);
+
             $level++;
         }
     }
 
+    // GET USER LEVEL
     public function getUserLevel($user)
     {
         $level = 1;
 
         while ($user->referred_by) {
+
             $user = User::find($user->referred_by);
+
             $level++;
 
             if ($level > 10) {
@@ -65,6 +76,7 @@ class ReferralService
         return $level;
     }
 
+    // RECURSIVE REFERRAL TREE
     public function getReferralTree($user)
     {
         $children = User::where(
@@ -77,9 +89,12 @@ class ReferralService
             'name' => $user->name,
             'email' => $user->email,
 
+            'total_children' => $children->count(),
+
             'children' => $children->map(function ($child) {
 
                 return $this->getReferralTree($child);
+
             })->values()
         ];
     }
