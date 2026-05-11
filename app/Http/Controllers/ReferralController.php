@@ -11,7 +11,7 @@ class ReferralController extends Controller
 {
     public function __construct(
         protected referralService $referralService
-    ){}
+    ) {}
 
     /**
      * @OA\Get(
@@ -31,5 +31,27 @@ class ReferralController extends Controller
             'data' => $data
         ]);
     }
-}
 
+    /**
+     * @OA\Get(
+     *     path="/referral-tree",
+     *     summary="Get Referral Tree",
+     *     tags={"Referral"},
+     *     security={{"Bearer": {}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Referral tree fetched successfully"
+     *     )
+     * )
+     */
+    public function tree(Request $request): JsonResponse
+    {
+        $data = $this->referralService->getReferralTree($request->user());
+
+        return response()->json([
+            'status' => true,
+            'data' => $data
+        ]);
+    }
+}

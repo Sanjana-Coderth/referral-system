@@ -30,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/wallet-transactions', [WalletController::class, 'transactions']);
 
     Route::get('/referrals', [ReferralController::class, 'index']);
+    Route::get('/referral-tree',[ReferralController::class, 'tree']);
 
     Route::post('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])
         ->name('user.verification.verify');
