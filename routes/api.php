@@ -1,38 +1,54 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 
+// AUTH
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
-
+// PROTECTED ROUTES
 Route::middleware('auth:sanctum')->group(function () {
 
+    // AUTH
     Route::post('/logout', [AuthController::class, 'logout']);
-       Route::get('/resend', [AuthController::class, 'resend']);
-    Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
 
-    Route::get('/profile', [ProfileController::class, 'profile']);
-    Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
-    Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
+    Route::get('/resend', [AuthController::class,'resend']);
 
-    Route::get('/dashboard', [DashboardController::class, 'index']);
-    Route::get('/dashboard-chart/{type}', [DashboardController::class, 'chart']);
-    Route::get('/recent-users', [DashboardController::class, 'recentUsers']);
+    Route::post('/refresh-token', [AuthController::class,'refreshToken']);
 
-    Route::get('/wallet', [WalletController::class, 'balance']);
-    Route::get('/wallet-transactions', [WalletController::class, 'transactions']);
+    // PROFILE
+    Route::get('/profile', [ProfileController::class,'profile']);
 
-    Route::get('/referrals', [ReferralController::class, 'index']);
-    Route::get('/referral-tree',[ReferralController::class, 'tree']);
+    Route::post('/profile/update', [ProfileController::class,'updateProfile']);
 
-    Route::post('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])
-        ->name('user.verification.verify');
+    Route::post('/profile/change-password', [ProfileController::class,'changePassword']);
+
+    // DASHBOARD
+    Route::get('/dashboard', [DashboardController::class,'index']);
+
+    Route::get('/dashboard-chart/{type}', [DashboardController::class,'chart']);
+
+    Route::get('/recent-users', [DashboardController::class,'recentUsers']);
+
+    // WALLET
+    Route::get('/wallet', [WalletController::class,'balance']);
+
+    Route::get('/wallet-transactions', [WalletController::class,'transactions']);
+
+    // REFERRALS
+    Route::get('/referrals', [ReferralController::class,'index']);
+
+    Route::get('/referral-tree', [ReferralController::class,'tree']);
+
+    // EMAIL VERIFY
+    Route::post('/verify-email/{id}/{hash}', [AuthController::class,'verifyEmail'])->name('user.verification.verify');
+
 });

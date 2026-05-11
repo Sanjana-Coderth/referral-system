@@ -42,7 +42,6 @@ class AuthService
 
     public function register($data)
     {
-        $referrer = null;
         $referralService = new ReferralService();
 
         if (!empty($data['referred_by_code'])) {
@@ -52,16 +51,23 @@ class AuthService
                 $data['referred_by_code']
             )->first();
 
-            if ($referrer) {
+        } else {
+            $referrer = User::where(
+                'referral_code',
+                'UNRBPLO0'
+            )->first();
+        }
 
-                $level = $referralService->getUserLevel($referrer);
+        if ($referrer) {
 
-                if ($level >= 10) {
-                    return [
-                        'status' => false,
-                        'message' => 'Maximum 10 referral levels allowed. Cannot register further.'
-                    ];
-                }
+            $level = $referralService->getUserLevel($referrer);
+
+            if ($level >= 10) {
+
+                return [
+                    'status' => false,
+                    'message' => 'Maximum 10 referral levels allowed. Cannot register further.'
+                ];
             }
         }
 
