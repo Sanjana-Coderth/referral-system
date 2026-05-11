@@ -16,6 +16,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
+       Route::get('/resend', [AuthController::class, 'resend']);
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
 
     Route::get('/profile', [ProfileController::class, 'profile']);
@@ -30,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/wallet-transactions', [WalletController::class, 'transactions']);
 
     Route::get('/referrals', [ReferralController::class, 'index']);
+    Route::get('/referral-tree',[ReferralController::class, 'tree']);
 
     Route::post('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])
         ->name('user.verification.verify');

@@ -64,4 +64,23 @@ class ReferralService
 
         return $level;
     }
+
+    public function getReferralTree($user)
+    {
+        $children = User::where(
+            'referred_by',
+            $user->id
+        )->get();
+
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+
+            'children' => $children->map(function ($child) {
+
+                return $this->getReferralTree($child);
+            })->values()
+        ];
+    }
 }
