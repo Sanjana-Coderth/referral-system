@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\AuthenticationException;
 use App\Services\ReferralService;
+use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
@@ -158,8 +159,8 @@ class AuthService
         $status = Password::broker('users')->reset(
             $data,
             function ($user) use ($data) {
-                $user->forceFill([
-                    'password' => $data['password']
+                $user->forceFill([  
+                    'password' => Hash::make($data['password'])
                 ])->save();
 
                 event(new PasswordReset($user));

@@ -41,6 +41,7 @@ class LoginRequest extends FormRequest
             'email' => 'required|email',
             'password' => 'required|min:6',
             'remember_me' => 'nullable|boolean',
+            'captcha' => 'required',
         ];
     }
 }

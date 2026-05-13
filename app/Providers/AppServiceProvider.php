@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(200);
         Password::defaults(fn() => Password::min(8)->letters()->mixedCase()->numbers()->symbols());
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+
+            return "http://localhost:3000/reset-password?token=" . $token . "&email=" . urlencode($user->email);
+        });
         // Gate::define('check', function ($user, string $module) {
         //     if ($user instanceof User) {
         //         if (in_array(str($module)->replace('\\', '.')->value, getAuthorize($user))) {
