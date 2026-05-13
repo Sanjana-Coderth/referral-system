@@ -13,6 +13,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/verify-email/{id}/{hash}', [AuthController::class,'verifyEmail'])->name('user.verification.verify');
 
 // PROTECTED ROUTES
 Route::middleware('auth:sanctum')->group(function () {
@@ -47,8 +48,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/referrals', [ReferralController::class,'index']);
 
     Route::get('/referral-tree', [ReferralController::class,'tree']);
-
-    // EMAIL VERIFY
-    Route::post('/verify-email/{id}/{hash}', [AuthController::class,'verifyEmail'])->name('user.verification.verify');
 
 });

@@ -116,13 +116,13 @@ class ProfileController extends Controller
      */
     public function changePassword(ChangePasswordRequest $request): JsonResponse
     {
-            $this->profileService->changePassword(
-                $request->validated()
-            );
+        $this->profileService->changePassword(
+            $request->validated()
+        );
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Password changed successfully.'
-            ]);
+        return response()->json([
+            'status' => true,
+            'message' => 'Password changed successfully.'
+        ]);
     }
 }

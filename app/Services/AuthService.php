@@ -8,13 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\AuthenticationException;
 use App\Services\ReferralService;
 use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
-    public function login($data)
+    public function login(array $data)
     {
         if (!Auth::attempt([
             'email' => $data['email'],
@@ -41,7 +42,7 @@ class AuthService
         ];
     }
 
-    public function register($data)
+    public function register(array $data)
     {
         $referralService = new ReferralService();
 
@@ -51,7 +52,6 @@ class AuthService
                 'referral_code',
                 $data['referred_by_code']
             )->first();
-
         } else {
             $referrer = User::where(
                 'referral_code',
@@ -97,7 +97,7 @@ class AuthService
         ];
     }
 
-    public function getToken($user, $remember = false): array
+    public function getToken(User $user, bool $remember = false): array
     {
         $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
 
@@ -144,6 +144,15 @@ class AuthService
 
     public function forgotPassword(string $email)
     {
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+
+            return env('APP_FRONTEND_URL')
+                . '/reset-password?token='
+                . $token
+                . '&email='
+                . urlencode($user->email);
+        });
+
         $status = Password::broker('users')->sendResetLink([
             'email' => $email
         ]);
@@ -159,7 +168,7 @@ class AuthService
         $status = Password::broker('users')->reset(
             $data,
             function ($user) use ($data) {
-                $user->forceFill([  
+                $user->forceFill([
                     'password' => Hash::make($data['password'])
                 ])->save();
 

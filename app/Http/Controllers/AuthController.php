@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\AuthService;
@@ -115,23 +116,23 @@ class AuthController extends Controller
     }
 
     /**
- * @OA\Post(
- *     path="/forgot-password",
- *     summary="Forgot Password",
- *     tags={"Auth"},
- *     operationId="forgotPassword",
- *
- *     @OA\Parameter(ref="#/components/parameters/forgot_email"),
- *
- *     @OA\Response(response=200, description="Success"),
- *     @OA\Response(response=400, description="Bad Request")
- * )
- */
-public function forgotPassword(Request $request): JsonResponse
-{
-    $request->validate([
-        'email' => 'required|email'
-    ]);
+     * @OA\Post(
+     *     path="/forgot-password",
+     *     summary="Forgot Password",
+     *     tags={"Auth"},
+     *     operationId="forgotPassword",
+     *
+     *     @OA\Parameter(ref="#/components/parameters/forgot_email"),
+     *
+     *     @OA\Response(response=200, description="Success"),
+     *     @OA\Response(response=400, description="Bad Request")
+     * )
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
 
         $status = $this->authService->forgotPassword($request->email);
 
@@ -139,48 +140,48 @@ public function forgotPassword(Request $request): JsonResponse
             'status' => true,
             'message' => 'Reset link sent successfully'
         ]);
-}
-
-/**
- * @OA\Post(
- *     path="/reset-password",
- *     summary="Reset Password",
- *     tags={"Auth"},
- *     operationId="resetPassword",
- *
- *     @OA\Parameter(ref="#/components/parameters/reset_email"),
- *     @OA\Parameter(ref="#/components/parameters/reset_token"),
- *     @OA\Parameter(ref="#/components/parameters/reset_password"),
- *     @OA\Parameter(ref="#/components/parameters/reset_password_confirmation"),
- *
- *     @OA\Response(response=200, description="Success"),
- *     @OA\Response(response=400, description="Bad Request")
- * )
- */
-public function resetPassword(Request $request): JsonResponse
-{
-    $request->validate([
-        'email' => 'required|email',
-        'token' => 'required',
-        'password' => 'required|confirmed|min:6',
-    ]);
-
-    $result = $this->authService->resetPasswordWeb($request->all());
-
-    if ($result['status']) {
-        return response()->json([
-            'status' => true,
-            'message' => 'Your password has been changed successfully.'
-        ]);
     }
 
-    return response()->json([
-        'status' => false,
-        'message' => $result['message']
-    ], 400);
-}
+    /**
+     * @OA\Post(
+     *     path="/reset-password",
+     *     summary="Reset Password",
+     *     tags={"Auth"},
+     *     operationId="resetPassword",
+     *
+     *     @OA\Parameter(ref="#/components/parameters/reset_email"),
+     *     @OA\Parameter(ref="#/components/parameters/reset_token"),
+     *     @OA\Parameter(ref="#/components/parameters/reset_password"),
+     *     @OA\Parameter(ref="#/components/parameters/reset_password_confirmation"),
+     *
+     *     @OA\Response(response=200, description="Success"),
+     *     @OA\Response(response=400, description="Bad Request")
+     * )
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'token' => 'required',
+            'password' => 'required|confirmed|min:6',
+        ]);
 
-/**
+        $result = $this->authService->resetPasswordWeb($request->all());
+
+        if ($result['status']) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Your password has been changed successfully.'
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => $result['message']
+        ], 400);
+    }
+
+    /**
      * @OA\Get(
      *      path="/resend",
      *      tags={"Auth"},
@@ -208,8 +209,8 @@ public function resetPassword(Request $request): JsonResponse
         }
         request()->user()->sendEmailVerificationNotification();
         return response()->json([
-    'message' => 'Verification email resent successfully.'
-]);
+            'message' => 'Verification email resent successfully.'
+        ]);
     }
 
     /**
@@ -238,16 +239,44 @@ public function resetPassword(Request $request): JsonResponse
      *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
-    public function verifyEmail(EmailVerificationRequest $request): JsonResponse
+    public function verifyEmail(Request $request, string $id, string $hash): JsonResponse
     {
-        if (request()->user()->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Already Verified']);
+        $user = User::find($id);
+
+        if (!$user) {
+
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
         }
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
+
+        if (! hash_equals(
+            (string) $hash,
+            sha1($user->getEmailForVerification())
+        )) {
+
+            return response()->json([
+                'message' => 'Invalid verification link'
+            ], 403);
         }
-        return response()->json(['message' => 'Your email address has been verified successfully!']);
+
+        if ($user->hasVerifiedEmail()) {
+
+            return response()->json([
+                'message' => 'Already Verified'
+            ]);
+        }
+
+        $user->markEmailAsVerified();
+
+        event(new Verified($user));
+
+        return response()->json([
+            'message' =>
+            'Your email address has been verified successfully!'
+        ]);
     }
+
     /**
      * @OA\Post(
      *     path="/logout",
