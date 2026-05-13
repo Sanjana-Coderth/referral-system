@@ -62,5 +62,4 @@ class ReferralController extends Controller
             'data' => $data
         ]);
     }
-    
 }

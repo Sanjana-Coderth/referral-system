@@ -11,9 +11,9 @@ class PasswordSend extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $password;
+    protected string $password;
 
-    public function __construct($password)
+    public function __construct(string $password)
     {
         $this->password = $password;
     }
@@ -23,7 +23,7 @@ class PasswordSend extends Notification implements ShouldQueue
         return ['mail'];
     }
 
-    public function toMail($notifiable)
+    public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
             ->subject('Your Account Password')

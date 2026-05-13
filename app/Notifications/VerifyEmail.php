@@ -29,7 +29,7 @@ class VerifyEmail extends Notification implements ShouldQueue
     /**
      * Build mail notification.
      */
-    public function toMail($notifiable)
+    public function toMail(object $notifiable): MailMessage
     {
         $verificationUrl = $this->verificationUrl($notifiable);
 
@@ -47,7 +47,7 @@ class VerifyEmail extends Notification implements ShouldQueue
     /**
      * Email template.
      */
-    protected function buildMailMessage($url)
+    protected function buildMailMessage(string $url): MailMessage
     {
         return (new MailMessage)
             ->subject(__('email.verify_email'))
@@ -60,7 +60,7 @@ class VerifyEmail extends Notification implements ShouldQueue
     /**
      * Generate verification URL.
      */
-    protected function verificationUrl($notifiable)
+    protected function verificationUrl(object $notifiable): string
     {
         if (static::$createUrlCallback) {
             return call_user_func(
@@ -82,7 +82,7 @@ class VerifyEmail extends Notification implements ShouldQueue
             ]
         );
 
-        return str()->replace(
+        return str_replace(
             config('app.url') . '/api',
             config('app.web_url'),
             $url
@@ -92,7 +92,7 @@ class VerifyEmail extends Notification implements ShouldQueue
     /**
      * Custom URL callback.
      */
-    public static function createUrlUsing($callback)
+    public static function createUrlUsing(callable $callback): void
     {
         static::$createUrlCallback = $callback;
     }
@@ -100,7 +100,7 @@ class VerifyEmail extends Notification implements ShouldQueue
     /**
      * Custom mail callback.
      */
-    public static function toMailUsing($callback)
+    public static function toMailUsing(callable $callback): void
     {
         static::$toMailCallback = $callback;
     }
