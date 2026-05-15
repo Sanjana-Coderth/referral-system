@@ -13,40 +13,41 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-Route::post('/verify-email/{id}/{hash}', [AuthController::class,'verifyEmail'])->name('user.verification.verify');
+Route::post('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('user.verification.verify');
 
 // PROTECTED ROUTES
 Route::middleware('auth:sanctum')->group(function () {
 
     // AUTH
-    Route::post('/logout', [AuthController::class, 'logout']);  
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::get('/resend', [AuthController::class,'resend']);
+    Route::get('/resend', [AuthController::class, 'resend']);
 
-    Route::post('/refresh-token', [AuthController::class,'refreshToken']);
+    Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
 
     // PROFILE
-    Route::get('/profile', [ProfileController::class,'profile']);
+    Route::get('/profile', [ProfileController::class, 'profile']);
 
-    Route::post('/profile/update', [ProfileController::class,'updateProfile']);
+    Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
 
-    Route::post('/profile/change-password', [ProfileController::class,'changePassword']);
+    Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
 
     // DASHBOARD
-    Route::get('/dashboard', [DashboardController::class,'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    Route::get('/dashboard-chart/{type}', [DashboardController::class,'chart']);
+    Route::get('/dashboard-chart/{type}', [DashboardController::class, 'chart']);
 
-    Route::get('/recent-users', [DashboardController::class,'recentUsers']);
+    Route::get('/recent-users', [DashboardController::class, 'recentUsers']);
 
     // WALLET
-    Route::get('/wallet', [WalletController::class,'balance']);
+    Route::get('/wallet', [WalletController::class, 'balance']);
 
-    Route::get('/wallet-transactions', [WalletController::class,'transactions']);
+    Route::get('/wallet-transactions', [WalletController::class, 'transactions']);
 
     // REFERRALS
-    Route::get('/referrals', [ReferralController::class,'index']);
+    Route::get('/referrals', [ReferralController::class, 'index']);
 
-    Route::get('/referral-tree', [ReferralController::class,'tree']);
+    Route::get('/referral-tree', [ReferralController::class, 'tree']);
 
+    Route::get('/top-referrals', [ReferralController::class, 'topReferrals']);
 });
