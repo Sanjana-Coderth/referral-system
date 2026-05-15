@@ -18,7 +18,7 @@ class DashboardService
 
         $transactions = WalletTransaction::where('user_id', $user->id)
             ->latest()
-            ->take(5)
+            ->take(10)
             ->get();
 
         return [
