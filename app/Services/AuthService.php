@@ -71,7 +71,10 @@ class AuthService
         $user->sendEmailVerificationNotification();
 
         if ($referrer) {
-            $referralService->distributeLevelIncome($referrer);
+            $referralService->distributeLevelIncome(
+                $referrer,
+                $user
+            );
         }
 
         $tokenData = $this->getToken($user, false);

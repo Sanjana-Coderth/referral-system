@@ -25,9 +25,12 @@ class ReferralService
     }
 
     // DISTRIBUTE LEVEL INCOME
-    public function distributeLevelIncome(User $referrer)
-    {
+    public function distributeLevelIncome(
+        User $referrer,
+        User $newUser
+    ) {
         $level = 1;
+
         $current = $referrer;
 
         while ($current && $level <= 10) {
@@ -44,10 +47,21 @@ class ReferralService
                 $current->save();
 
                 WalletTransaction::create([
+
                     'user_id' => $current->id,
+
+                    'from_id' => $newUser->id,
+                    'from_email' => $newUser->email,
+
+                    'to_id' => $current->id,
+                    'to_email' => $current->email,
+
                     'amount' => $levelData->amount,
+
                     'type' => 'credit',
-                    'description' => 'Level ' . $level . ' Referral Bonus'
+
+                    'description' =>
+                    'Level ' . $level . ' Referral Bonus'
                 ]);
             }
 
@@ -94,7 +108,6 @@ class ReferralService
             'children' => $children->map(function (User $child) {
 
                 return $this->getReferralTree($child);
-
             })->values()
         ];
     }
