@@ -59,19 +59,6 @@ class AuthService
             )->first();
         }
 
-        if ($referrer) {
-
-            $level = $referralService->getUserLevel($referrer);
-
-            if ($level >= 10) {
-
-                return [
-                    'status' => false,
-                    'message' => 'Maximum 10 referral levels allowed. Cannot register further.'
-                ];
-            }
-        }
-
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],

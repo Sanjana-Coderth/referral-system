@@ -12,11 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('referral_levels', function (Blueprint $table) {
-            $table->uuid('id')->primary(); // 🔥 UUID
+
+            $table->uuid('id')->primary();
+
             $table->integer('level');
+
             $table->decimal('amount', 10, 2);
+
             $table->timestamps();
         });
+
+        $amount = 100;
+
+        for ($i = 1; $i <= 10; $i++) {
+
+            \App\Models\ReferralLevel::create([
+                'level' => $i,
+                'amount' => $amount
+            ]);
+
+            $amount -= 10;
+        }
     }
 
     /**
