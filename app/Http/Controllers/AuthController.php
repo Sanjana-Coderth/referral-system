@@ -276,9 +276,10 @@ $referrer = User::find($user->referred_by);
 
 if ($referrer) {
 
-    $referralService->distributeLevelIncome(
-        $referrer
-    );
+   $referralService->distributeLevelIncome(
+    $referrer,
+    $user
+);
 
 }
 
