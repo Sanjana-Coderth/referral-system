@@ -27,16 +27,27 @@ class ProfileService
 
         if (request()->hasFile('image')) {
 
-            $image = request()->file('image')->store('profile', 'public');
+            $image = request()
+                ->file('image')
+                ->store('profile', 'public');
 
             $data['image'] = $image;
         }
 
-        $user->fill($data);
+        $user->update([
 
-        $user->save();
+            'name' => $data['name'],
 
-        return $user;
+            'usdt_wallet_address' =>
+            $data['usdt_wallet_address'] ?? null,
+
+            'bsc_wallet_address' =>
+            $data['bsc_wallet_address'] ?? null,
+
+            'image' => $data['image'] ?? $user->image,
+        ]);
+
+        return $user->fresh();
     }
 
     // CHANGE PASSWORD

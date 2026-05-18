@@ -13,24 +13,8 @@ class ProfileUpdateRequest extends FormRequest
 
     /**
      * @OA\Parameter(
-     *      parameter="first_name",
-     *      name="first_name",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(type="string")
-     * )
-     *
-     * @OA\Parameter(
-     *      parameter="last_name",
-     *      name="last_name",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(type="string")
-     * )
-     *
-     * @OA\Parameter(
-     *      parameter="email",
-     *      name="email",
+     *      parameter="name",
+     *      name="name",
      *      in="query",
      *      required=true,
      *      @OA\Schema(type="string")
@@ -71,21 +55,16 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
 
-            'first_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
 
-            'last_name' => 'required|string|max:255',
+            'usdt_wallet_address' =>
+                'nullable|string|max:255',
 
-            'email' => [
-                'required',
-                'email',
-                'unique:users,email,' . request()->user()->id,
-            ],
+            'bsc_wallet_address' =>
+                'nullable|string|max:255',
 
-            'usdt_wallet_address' => 'nullable|string|max:255',
-
-            'bsc_wallet_address' => 'nullable|string|max:255',
-
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'image' =>
+                'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
     }
 }

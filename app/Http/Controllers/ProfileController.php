@@ -54,10 +54,8 @@ class ProfileController extends Controller
      *      security={{"Bearer": {}}},
      *      summary="User Update Profile",
      *      operationId="userUpdateProfile",
-     *
-     *      @OA\Parameter(ref="#/components/parameters/first_name"),
-     *      @OA\Parameter(ref="#/components/parameters/last_name"),
-     *      @OA\Parameter(ref="#/components/parameters/email"),
+     *      
+     *      @OA\Parameter(ref="#/components/parameters/name"),
      *      @OA\Parameter(ref="#/components/parameters/usdt_wallet_address"),
      *      @OA\Parameter(ref="#/components/parameters/bsc_wallet_address"),
      *
