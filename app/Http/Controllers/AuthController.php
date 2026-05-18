@@ -10,6 +10,8 @@ use Illuminate\Http\JsonResponse;
 use OpenApi\Annotations as OA;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Auth\Events\Verified;
+use App\Services\ReferralService;
+
 
 class AuthController extends Controller
 {
@@ -268,6 +270,17 @@ class AuthController extends Controller
         }
 
         $user->markEmailAsVerified();
+        $referralService = new ReferralService();
+
+$referrer = User::find($user->referred_by);
+
+if ($referrer) {
+
+    $referralService->distributeLevelIncome(
+        $referrer
+    );
+
+}
 
         event(new Verified($user));
 
