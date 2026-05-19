@@ -27,7 +27,19 @@ class AuthService
             ];
         }
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
+
+        if (!$user->hasVerifiedEmail()) {
+
+            Auth::logout();
+
+            return [
+                'status' => false,
+                'message' =>
+                'Please verify your email first'
+            ];
+        }
 
         $remember = filter_var($data['remember_me'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
@@ -165,110 +177,109 @@ class AuthService
         ];
     }
 
-  public function passwordUpdate(array $data): void
-{
-    /** @var \App\Models\User|null $user */
-$user = Auth::user();
+    public function passwordUpdate(array $data): void
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
 
-    if ($user) {
+        if ($user) {
 
-        $user->update([
-            'password' => bcrypt($data['password'])
-        ]);
-
-    }
-}
-
-public function verifyEmail(
-    string $id,
-    string $hash
-) {
-
-    $user = User::find($id);
-
-    if (!$user) {
-
-        return [
-            'status' => false,
-            'message' => 'User not found'
-        ];
+            $user->update([
+                'password' => bcrypt($data['password'])
+            ]);
+        }
     }
 
-    if (!hash_equals(
-        (string) $hash,
-        sha1($user->getEmailForVerification())
-    )) {
+    public function verifyEmail(
+        string $id,
+        string $hash
+    ) {
 
-        return [
-            'status' => false,
-            'message' => 'Invalid verification link'
-        ];
-    }
+        $user = User::find($id);
 
-    if ($user->hasVerifiedEmail()) {
+        if (!$user) {
 
-        return [
-            'status' => true,
-            'message' => 'Already Verified'
-        ];
-    }
+            return [
+                'status' => false,
+                'message' => 'User not found'
+            ];
+        }
 
-    $user->markEmailAsVerified();
+        if (!hash_equals(
+            (string) $hash,
+            sha1($user->getEmailForVerification())
+        )) {
 
-    $referralService =
-        new ReferralService();
+            return [
+                'status' => false,
+                'message' => 'Invalid verification link'
+            ];
+        }
 
-    $referrer = User::find(
-        $user->referred_by
-    );
+        if ($user->hasVerifiedEmail()) {
 
-    if ($referrer) {
+            return [
+                'status' => true,
+                'message' => 'Already Verified'
+            ];
+        }
 
-        $referralService
-            ->distributeLevelIncome(
-                $referrer,
-                $user
-            );
-    }
+        $user->markEmailAsVerified();
 
-    event(new \Illuminate\Auth\Events\Verified($user));
+        $referralService =
+            new ReferralService();
 
-    return [
-        'status' => true,
-        'message' =>
-        'Your email address has been verified successfully!'
-    ];
-}
+        $referrer = User::find(
+            $user->referred_by
+        );
 
-public function resend()
-{
-    /** @var \App\Models\User|null $user */
-$user = Auth::user();
+        if ($referrer) {
 
-    if (!$user) {
+            $referralService
+                ->distributeLevelIncome(
+                    $referrer,
+                    $user
+                );
+        }
 
-        return [
-            'status' => false,
-            'message' => 'Unauthenticated'
-        ];
-    }
-
-    if ($user->hasVerifiedEmail()) {
+        event(new \Illuminate\Auth\Events\Verified($user));
 
         return [
             'status' => true,
-            'message' => 'Already Verified'
+            'message' =>
+            'Your email address has been verified successfully!'
         ];
     }
 
-    $user->sendEmailVerificationNotification();
+    public function resend()
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
 
-    return [
-        'status' => true,
-        'message' =>
-        'Verification email resent successfully.'
-    ];
-}
+        if (!$user) {
+
+            return [
+                'status' => false,
+                'message' => 'Unauthenticated'
+            ];
+        }
+
+        if ($user->hasVerifiedEmail()) {
+
+            return [
+                'status' => true,
+                'message' => 'Already Verified'
+            ];
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return [
+            'status' => true,
+            'message' =>
+            'Verification email resent successfully.'
+        ];
+    }
     private function generateReferralCode()
     {
         do {
