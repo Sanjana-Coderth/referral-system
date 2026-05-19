@@ -13,6 +13,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::get('/default-referral', [AuthController::class, 'defaultReferral']);
 
 // PROTECTED ROUTES
 Route::middleware('auth:sanctum')->group(function () {
@@ -52,6 +53,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/referral-tree', [ReferralController::class, 'tree']);
 
     Route::get('/top-referrals', [ReferralController::class, 'topReferrals']);
-
-    Route::get('/default-referral', [AuthController::class, 'defaultReferral']);
 });

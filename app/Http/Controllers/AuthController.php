@@ -123,9 +123,12 @@ class AuthController extends Controller
      */
     public function defaultReferral()
     {
-        $user = request()->user();
+        $admin = User::first();
 
-        return response()->json(['referral_code' => $user->referral_code]);
+        return response()->json([
+            'referral_code' =>
+            $admin->referral_code
+        ]);
     }
 
     /**
@@ -267,14 +270,10 @@ class AuthController extends Controller
     {
         if (request()->user()->hasVerifiedEmail()) {
 
-            return response()->json([
-                'message' => 'Already Verified'
-            ]);
+            return response()->json(['message' => 'Already Verified']);
         }
 
-        request()
-            ->user()
-            ->sendEmailVerificationNotification();
+        request()->user()->sendEmailVerificationNotification();
 
         return response()->json([
             'message' =>
@@ -308,18 +307,14 @@ class AuthController extends Controller
      *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
-    public function verifyEmail(
-        EmailVerificationRequest $request
-    ): JsonResponse {
-        if (
-            request()->user()->hasVerifiedEmail()
-        ) {
+    public function verifyEmail(EmailVerificationRequest $request): JsonResponse {
+        if ( request()->user()->hasVerifiedEmail()) 
+            {
             return response()->json(['message' => 'Already Verified']);
-        }
+            }
 
-        if (
-            $request->user()->markEmailAsVerified()
-        ) {
+        if ($request->user()->markEmailAsVerified()) {
+
             $user = $request->user();
 
             $referrer = User::find($user->referred_by);

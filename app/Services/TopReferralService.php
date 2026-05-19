@@ -12,8 +12,7 @@ class TopReferralService
 
         // GLOBAL TOP 3
         $topThree = User::withCount('referrals')
-            ->orderByDesc('referrals_count')
-            ->take(3)
+            ->orderByDesc('referrals_count')->orderBy('updated_at', 'asc')->take(3)
             ->get([
                 'id',
                 'name',
@@ -24,7 +23,7 @@ class TopReferralService
 
         // PAGINATION DATA
         $users = User::withCount('referrals')
-            ->orderByDesc('referrals_count')
+            ->orderByDesc('referrals_count')->orderBy('updated_at', 'asc')->take(3)
             ->paginate($perPage, [
                 'id',
                 'name',
