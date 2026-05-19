@@ -187,7 +187,7 @@ class AuthController extends Controller
      * @OA\Get(
      *      path="/resend",
      *      tags={"Auth"},
-     *      security={{"sanctum": {}}},
+     *      security={{"Bearer": {}}},
      *      summary="Email Resend",
      *      operationId="Resend",
      *
@@ -204,17 +204,12 @@ class AuthController extends Controller
      *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
-    public function resend(): JsonResponse
-    {
-        if (request()->user()->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Already Verified']);
-        }
-        request()->user()->sendEmailVerificationNotification();
-        return response()->json([
-            'message' => 'Verification email resent successfully.'
-        ]);
-    }
-
+ public function resend(): JsonResponse
+{
+    return response()->json(
+        $this->authService->resend()
+    );
+}
     /**
      * @OA\Post(
      *      path="/verify-email/{id}/{hash}",
@@ -241,55 +236,19 @@ class AuthController extends Controller
      *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
-    public function verifyEmail(Request $request, string $id, string $hash): JsonResponse
-    {
-        $user = User::find($id);
+public function verifyEmail(
+    Request $request,
+    string $id,
+    string $hash
+): JsonResponse {
 
-        if (!$user) {
-
-            return response()->json([
-                'message' => 'User not found'
-            ], 404);
-        }
-
-        if (! hash_equals(
-            (string) $hash,
-            sha1($user->getEmailForVerification())
-        )) {
-
-            return response()->json([
-                'message' => 'Invalid verification link'
-            ], 403);
-        }
-
-        if ($user->hasVerifiedEmail()) {
-
-            return response()->json([
-                'message' => 'Already Verified'
-            ]);
-        }
-
-        $user->markEmailAsVerified();
-        $referralService = new ReferralService();
-
-$referrer = User::find($user->referred_by);
-
-if ($referrer) {
-
-   $referralService->distributeLevelIncome(
-    $referrer,
-    $user
-);
-
+    return response()->json(
+        $this->authService->verifyEmail(
+            $id,
+            $hash
+        )
+    );
 }
-
-        event(new Verified($user));
-
-        return response()->json([
-            'message' =>
-            'Your email address has been verified successfully!'
-        ]);
-    }
 
     /**
      * @OA\Post(
