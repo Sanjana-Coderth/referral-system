@@ -77,6 +77,13 @@ class AuthController extends Controller
      *              mediaType="application/json"
      *          )
      *      ),
+     *      
+     *      @OA\Response(response=400, description="Bad Request"),
+     *      @OA\Response(response=401, description="Unauthenticated"),
+     *      @OA\Response(response=403, description="Forbidden"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     *      @OA\Response(response=422, description="Unprocessable Entity"),
+     *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
     public function register(RegisterRequest $request): JsonResponse
@@ -96,18 +103,17 @@ class AuthController extends Controller
      *
      *     @OA\Parameter(ref="#/components/parameters/refresh_token"),
      *
-     *     @OA\Response(
-     *         response=200,
-     *         description="New access token generated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="access_token", type="string", example="1|newtoken123"),
-     *             @OA\Property(property="access_expires", type="string", example="2026-04-01 14:00:00")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated"
-     *     )
+     *      @OA\Response(response=200, description="Success",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      ),
+     *      @OA\Response(response=400, description="Bad Request"),
+     *      @OA\Response(response=401, description="Unauthenticated"),
+     *      @OA\Response(response=403, description="Forbidden"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     *      @OA\Response(response=422, description="Unprocessable Entity"),
+     *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
     public function refreshToken(Request $request): JsonResponse
@@ -126,8 +132,17 @@ class AuthController extends Controller
      *
      *     @OA\Parameter(ref="#/components/parameters/forgot_email"),
      *
-     *     @OA\Response(response=200, description="Success"),
-     *     @OA\Response(response=400, description="Bad Request")
+     *      @OA\Response(response=200, description="Success",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      ),
+     *      @OA\Response(response=400, description="Bad Request"),
+     *      @OA\Response(response=401, description="Unauthenticated"),
+     *      @OA\Response(response=403, description="Forbidden"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     *      @OA\Response(response=422, description="Unprocessable Entity"),
+     *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
     public function forgotPassword(Request $request): JsonResponse
@@ -156,17 +171,26 @@ class AuthController extends Controller
      *     @OA\Parameter(ref="#/components/parameters/reset_password"),
      *     @OA\Parameter(ref="#/components/parameters/reset_password_confirmation"),
      *
-     *     @OA\Response(response=200, description="Success"),
-     *     @OA\Response(response=400, description="Bad Request")
+     *      @OA\Response(response=200, description="Success",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      ),
+     *      @OA\Response(response=400, description="Bad Request"),
+     *      @OA\Response(response=401, description="Unauthenticated"),
+     *      @OA\Response(response=403, description="Forbidden"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     *      @OA\Response(response=422, description="Unprocessable Entity"),
+     *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
     public function resetPassword(Request $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-            'token' => 'required',
-            'password' => 'required|confirmed|min:6',
-        ]);
+            $request->validate([
+                'email' => 'required|email',
+                'token' => 'required',
+                'password' => 'required|confirmed|min:6',
+            ]);
 
         $result = $this->authService->resetPasswordWeb($request->all());
 
@@ -272,16 +296,15 @@ class AuthController extends Controller
         $user->markEmailAsVerified();
         $referralService = new ReferralService();
 
-$referrer = User::find($user->referred_by);
+        $referrer = User::find($user->referred_by);
 
-if ($referrer) {
+        if ($referrer) {
 
-   $referralService->distributeLevelIncome(
-    $referrer,
-    $user
-);
-
-}
+            $referralService->distributeLevelIncome(
+                $referrer,
+                $user
+            );
+        }
 
         event(new Verified($user));
 
@@ -298,17 +321,17 @@ if ($referrer) {
      *     tags={"Auth"},
      *     operationId="logoutUser",
      *     security={{"Bearer": {}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="User logged out successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Logged out successfully")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated"
-     *     )
+     *     @OA\Response(response=200, description="Success",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      ),
+     *      @OA\Response(response=400, description="Bad Request"),
+     *      @OA\Response(response=401, description="Unauthenticated"),
+     *      @OA\Response(response=403, description="Forbidden"),
+     *      @OA\Response(response=404, description="Resource Not Found"),
+     *      @OA\Response(response=422, description="Unprocessable Entity"),
+     *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
     public function logout(Request $request): JsonResponse
