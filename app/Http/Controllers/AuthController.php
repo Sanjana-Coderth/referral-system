@@ -10,7 +10,6 @@ use Illuminate\Http\JsonResponse;
 use OpenApi\Annotations as OA;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Auth\Events\Verified;
-use App\Services\ReferralService;
 
 
 class AuthController extends Controller
@@ -230,15 +229,28 @@ class AuthController extends Controller
      */
     public function resend(): JsonResponse
     {
-        return response()->json(
-            $this->authService->resend()
-        );
+        if (request()->user()->hasVerifiedEmail()) {
+
+            return response()->json([
+                'message' => 'Already Verified'
+            ]);
+        }
+
+        request()
+            ->user()
+            ->sendEmailVerificationNotification();
+
+        return response()->json([
+            'message' =>
+            'Verification email resent successfully.'
+        ]);
     }
+
     /**
      * @OA\Post(
      *      path="/verify-email/{id}/{hash}",
      *      tags={"Auth"},
-     *      security={{"sanctum": {}}},
+     *      security={{"Bearer": {}}},
      *      summary="Email Verify",
      *      operationId="userVerify",
      *
@@ -261,17 +273,34 @@ class AuthController extends Controller
      * )
      */
     public function verifyEmail(
-        Request $request,
-        string $id,
-        string $hash
+        EmailVerificationRequest $request
     ): JsonResponse {
+        if (
+            request()->user()->hasVerifiedEmail()
+        ) {
+            return response()->json(['message' => 'Already Verified']);
+        }
 
-        return response()->json(
-            $this->authService->verifyEmail(
-                $id,
-                $hash
-            )
-        );
+        if (
+            $request->user()->markEmailAsVerified()
+        ) {
+            $user = $request->user();
+
+            $referrer = User::find($user->referred_by);
+
+            if ($referrer) {
+                $referralService = new \App\Services\ReferralService();
+
+                $referralService->distributeLevelIncome($referrer,$user);
+            }
+
+            event(new Verified($request->user()));
+        }
+
+        return response()->json([
+            'message' =>
+            'Your email address has been verified successfully!'
+        ]);
     }
 
     /**
@@ -296,7 +325,6 @@ class AuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        // current token delete karo
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
