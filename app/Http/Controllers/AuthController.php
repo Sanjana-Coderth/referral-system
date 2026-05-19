@@ -93,6 +93,45 @@ class AuthController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *     path="/default-referral",
+     *     summary="Get Default Admin Referral Code",
+     *     tags={"Auth"},
+     *     operationId="defaultReferral",
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\MediaType(
+     *             mediaType="application/json"
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad Request"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Not Found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     )
+     * )
+     */
+    public function defaultReferral()
+    {
+        $admin = User::first();
+
+        return response()->json([
+            'referral_code' =>
+            $admin->referral_code
+        ]);
+    }
+
+    /**
      * @OA\Post(
      *     path="/refresh-token",
      *     summary="Refresh Access Token",
@@ -291,7 +330,7 @@ class AuthController extends Controller
             if ($referrer) {
                 $referralService = new \App\Services\ReferralService();
 
-                $referralService->distributeLevelIncome($referrer,$user);
+                $referralService->distributeLevelIncome($referrer, $user);
             }
 
             event(new Verified($request->user()));

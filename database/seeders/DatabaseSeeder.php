@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('12345678'),
             'referral_code' => 'ADMIN01',
             'wallet_balance' => 100,
+            'email_verified_at' => now(),
         ]);
 
         WalletTransaction::create([

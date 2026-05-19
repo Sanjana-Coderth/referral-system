@@ -77,5 +77,13 @@ use OpenApi\Annotations as OA;
  *     description="Verification Signature",
  *     @OA\Schema(type="string")
  * )
+ * 
+ * @OA\Parameter(
+ *     parameter="default_referral_code",
+ *     name="referral_code",
+ *     in="query",
+ *     required=false,
+ *     description="Default Admin Referral Code",
+ * )
  */
 class OpenApi {}
