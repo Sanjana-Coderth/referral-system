@@ -123,12 +123,9 @@ class AuthController extends Controller
      */
     public function defaultReferral()
     {
-        $admin = User::first();
+        $user = request()->user();
 
-        return response()->json([
-            'referral_code' =>
-            $admin->referral_code
-        ]);
+        return response()->json(['referral_code' => $user->referral_code]);
     }
 
     /**
