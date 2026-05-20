@@ -30,17 +30,6 @@ class AuthService
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if (!$user->hasVerifiedEmail()) {
-
-            Auth::logout();
-
-            return [
-                'status' => false,
-                'message' =>
-                'Please verify your email first'
-            ];
-        }
-
         $remember = filter_var($data['remember_me'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $tokenData = $this->getToken($user, $remember);
@@ -79,8 +68,6 @@ class AuthService
             'referred_by' => $referrer ? $referrer->id : null,
             'wallet_balance' => 0
         ]);
-
-        $user->sendEmailVerificationNotification();
 
         $tokenData = $this->getToken($user, false);
 
@@ -271,8 +258,6 @@ class AuthService
                 'message' => 'Already Verified'
             ];
         }
-
-        $user->sendEmailVerificationNotification();
 
         return [
             'status' => true,
