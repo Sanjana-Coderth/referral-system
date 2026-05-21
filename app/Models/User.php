@@ -11,6 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Notifications\VerifyEmail;
 use App\Notifications\ResetPassword;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, HasUuids;
@@ -26,7 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'usdt_wallet_address',
         'bsc_wallet_address',
         'image',
-];
+    ];
 
     protected $hidden = [
         'password',
@@ -59,8 +60,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $this->notify(new ResetPassword($token));
     }
-       public function sendEmailVerificationNotification(): void
-{
-    $this->notify(new VerifyEmail());
-}
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmail());
+    }
 }

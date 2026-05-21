@@ -83,7 +83,7 @@ class VerifyEmail extends Notification implements ShouldQueue
         );
 
         return $url;
-    } 
+    }
 
     /**
      * Custom URL callback.

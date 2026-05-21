@@ -28,54 +28,54 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-{
-    Schema::defaultStringLength(200);
+    {
+        Schema::defaultStringLength(200);
 
-    Password::defaults(
-        fn() =>
-        Password::min(8)
-            ->letters()
-            ->mixedCase()
-            ->numbers()
-            ->symbols()
-    );
+        Password::defaults(
+            fn() =>
+            Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+        );
 
-    Sanctum::usePersonalAccessTokenModel(
-        PersonalAccessToken::class
-    );
+        Sanctum::usePersonalAccessTokenModel(
+            PersonalAccessToken::class
+        );
 
-    ResetPassword::createUrlUsing(
-        function ($user, string $token) {
+        ResetPassword::createUrlUsing(
+            function ($user, string $token) {
 
-            return
-                "http://localhost:3000/reset-password?token="
-                . $token .
-                "&email=" .
-                urlencode($user->email);
-        }
-    );
+                return
+                    "http://localhost:3000/reset-password?token="
+                    . $token .
+                    "&email=" .
+                    urlencode($user->email);
+            }
+        );
 
-    VerifyEmail::toMailUsing(
-        function ($notifiable, $url) {
+        VerifyEmail::toMailUsing(
+            function ($notifiable, $url) {
 
-            $frontendUrl =
-                env("APP_FRONTEND_URL");
+                $frontendUrl =
+                    env("APP_FRONTEND_URL");
 
-            $verifyUrl =
-                $frontendUrl .
-                "/verify-email?url=" .
-                urlencode($url);
+                $verifyUrl =
+                    $frontendUrl .
+                    "/verify-email?url=" .
+                    urlencode($url);
 
-            return (new MailMessage)
-                ->subject("Verify Email")
-                ->line(
-                    "Click button below to verify your email."
-                )
-                ->action(
-                    "Verify Email",
-                    $verifyUrl
-                );
-        }
-    );
-}
+                return (new MailMessage)
+                    ->subject("Verify Email")
+                    ->line(
+                        "Click button below to verify your email."
+                    )
+                    ->action(
+                        "Verify Email",
+                        $verifyUrl
+                    );
+            }
+        );
+    }
 }

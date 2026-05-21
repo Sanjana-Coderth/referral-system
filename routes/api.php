@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
 
-    Route::post('/verify-email/{id}/{hash}',[AuthController::class, 'verifyEmail'])->middleware('signed')
+    Route::post('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware('signed')
         ->name('user.verification.verify');
 
     // PROFILE

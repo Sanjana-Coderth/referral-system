@@ -268,7 +268,7 @@ class AuthController extends Controller
      */
     public function resend(): JsonResponse
     {
-        if (request()->user()->hasVerifiedEmail()) {
+        if (request()->user()->sendEmailVerificationNotification()) {
 
             return response()->json(['message' => 'Already Verified']);
         }
@@ -307,11 +307,11 @@ class AuthController extends Controller
      *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
-    public function verifyEmail(EmailVerificationRequest $request): JsonResponse {
-        if ( request()->user()->hasVerifiedEmail()) 
-            {
+    public function verifyEmail(EmailVerificationRequest $request): JsonResponse
+    {
+        if (request()->user()->sendEmailVerificationNotification()) {
             return response()->json(['message' => 'Already Verified']);
-            }
+        }
 
         if ($request->user()->markEmailAsVerified()) {
 
@@ -362,4 +362,4 @@ class AuthController extends Controller
             'message' => 'Logged out successfully'
         ]);
     }
-   }
+}
