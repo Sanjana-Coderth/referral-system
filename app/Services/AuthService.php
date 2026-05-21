@@ -30,6 +30,10 @@ class AuthService
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        $user->update([
+            'last_login_at' => now()
+        ]);
+
         $remember = filter_var($data['remember_me'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $tokenData = $this->getToken($user, $remember);

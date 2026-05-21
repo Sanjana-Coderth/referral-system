@@ -17,9 +17,8 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasApiTokens, HasFactory, Notifiable, HasUuids;
 
     protected $fillable = [
+
         'name',
-        'first_name',
-        'last_name',
         'email',
         'password',
         'referral_code',
@@ -27,6 +26,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'usdt_wallet_address',
         'bsc_wallet_address',
         'image',
+        'last_login_at',
+
     ];
 
     protected $hidden = [
@@ -36,8 +37,15 @@ class User extends Authenticatable implements MustVerifyEmail
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+
+            'email_verified_at' =>
+            'datetime',
+
+            'last_login_at' =>
+            'datetime',
+
+            'password' =>
+            'hashed',
         ];
     }
 
