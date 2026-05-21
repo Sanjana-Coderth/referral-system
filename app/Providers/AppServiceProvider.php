@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\VerifyEmail;
+use Illuminate\Notifications\Messages\MailMessage;
 use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,21 +28,54 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-    {
-        Schema::defaultStringLength(200);
-        Password::defaults(fn() => Password::min(8)->letters()->mixedCase()->numbers()->symbols());
-        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
-        ResetPassword::createUrlUsing(function ($user, string $token) {
+{
+    Schema::defaultStringLength(200);
 
-            return "http://localhost:3000/reset-password?token=" . $token . "&email=" . urlencode($user->email);
-        });
-        // Gate::define('check', function ($user, string $module) {
-        //     if ($user instanceof User) {
-        //         if (in_array(str($module)->replace('\\', '.')->value, getAuthorize($user))) {
-        //             return Response::allow();
-        //         }
-        //     }
-        //     return Response::denyAsNotFound();
-        // });
-    }
+    Password::defaults(
+        fn() =>
+        Password::min(8)
+            ->letters()
+            ->mixedCase()
+            ->numbers()
+            ->symbols()
+    );
+
+    Sanctum::usePersonalAccessTokenModel(
+        PersonalAccessToken::class
+    );
+
+    ResetPassword::createUrlUsing(
+        function ($user, string $token) {
+
+            return
+                "http://localhost:3000/reset-password?token="
+                . $token .
+                "&email=" .
+                urlencode($user->email);
+        }
+    );
+
+    VerifyEmail::toMailUsing(
+        function ($notifiable, $url) {
+
+            $frontendUrl =
+                env("APP_FRONTEND_URL");
+
+            $verifyUrl =
+                $frontendUrl .
+                "/verify-email?url=" .
+                urlencode($url);
+
+            return (new MailMessage)
+                ->subject("Verify Email")
+                ->line(
+                    "Click button below to verify your email."
+                )
+                ->action(
+                    "Verify Email",
+                    $verifyUrl
+                );
+        }
+    );
+}
 }

@@ -23,10 +23,12 @@ class DashboardService
 
         return [
             'user' => [
-                'name' => $user->name,
-                'email' => $user->email,
-                'referral_code' => $user->referral_code,
-            ],
+    'name' => $user->name,
+    'email' => $user->email,
+    'referral_code' => $user->referral_code,
+    'email_verified_at' =>
+        $user->email_verified_at,
+],
             'wallet' => [
                 'balance' => $user->wallet_balance,
                 'referral_earnings' => $referralEarnings,

@@ -82,12 +82,8 @@ class VerifyEmail extends Notification implements ShouldQueue
             ]
         );
 
-        return str_replace(
-            config('app.url') . '/api',
-            config('app.web_url'),
-            $url
-        );
-    }
+        return $url;
+    } 
 
     /**
      * Custom URL callback.
