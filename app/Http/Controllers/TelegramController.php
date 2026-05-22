@@ -10,16 +10,13 @@ class TelegramController extends Controller
     /**
      * @OA\Get(
      *     path="/telegram-stats",
-     *     summary="Get Telegram Group Members Count",
+     *     summary="Get Telegram Group and Channel Members Count",
      *     tags={"Telegram"},
      *     operationId="telegramStats",
      *
      *     @OA\Response(
      *         response=200,
-     *         description="Success",
-     *         @OA\MediaType(
-     *             mediaType="application/json"
-     *         )
+     *         description="Success response with group and channel member count"
      *     ),
      *
      *     @OA\Response(response=400, description="Bad Request"),
@@ -30,17 +27,35 @@ class TelegramController extends Controller
     public function stats(): JsonResponse
     {
         $token = env('TELEGRAM_BOT_TOKEN');
-        $channel = env('TELEGRAM_CHANNEL');
 
-        $response = Http::get(
-            "https://api.telegram.org/bot{$token}/getChatMembersCount",
-            [
-                'chat_id' => $channel
-            ]
-        );
+        // FIX: separate variables (NEVER duplicate .env keys)
+        $groupChatId = env('TELEGRAM_GROUP');
+        $channelChatId = env('TELEGRAM_CHANNEL');
+
+        $groupCount = 0;
+        $channelCount = 0;
+
+        if ($groupChatId) {
+            $groupRes = Http::get(
+                "https://api.telegram.org/bot{$token}/getChatMembersCount",
+                ['chat_id' => $groupChatId]
+            );
+
+            $groupCount = $groupRes->json()['result'] ?? 0;
+        }
+
+        if ($channelChatId) {
+            $channelRes = Http::get(
+                "https://api.telegram.org/bot{$token}/getChatMembersCount",
+                ['chat_id' => $channelChatId]
+            );
+
+            $channelCount = $channelRes->json()['result'] ?? 0;
+        }
 
         return response()->json([
-            'members' => $response->json()['result'] ?? 0
+            'group_members' => $groupCount,
+            'channel_members' => $channelCount,
         ]);
     }
 }
