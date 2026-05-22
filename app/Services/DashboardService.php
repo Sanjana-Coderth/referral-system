@@ -27,7 +27,7 @@ class DashboardService
                 'email' => $user->email,
                 'referral_code' => $user->referral_code,
                 'email_verified_at' =>
-                $user->email_verified_at,
+                    $user->email_verified_at,
             ],
             'wallet' => [
                 'balance' => $user->wallet_balance,
@@ -130,7 +130,8 @@ class DashboardService
                 'id',
                 'name',
                 'email',
-                'created_at'
+                'created_at',
+                'last_login_at'
             ]);
     }
 }
