@@ -7,6 +7,7 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TelegramController;
 
 // AUTH
 Route::post('/register', [AuthController::class, 'register']);
@@ -14,6 +15,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/default-referral', [AuthController::class, 'defaultReferral']);
+
+Route::get('/telegram-stats', [TelegramController::class, 'stats']);
 
 // PROTECTED ROUTES
 Route::middleware('auth:sanctum')->group(function () {
@@ -53,4 +56,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/referral-tree', [ReferralController::class, 'tree']);
 
     Route::get('/top-referrals', [ReferralController::class, 'topReferrals']);
+
 });
