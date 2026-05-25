@@ -18,18 +18,20 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $fillable = [
 
-        'name',
-        'email',
-        'password',
-        'referral_code',
-        'referred_by',
-        'usdt_wallet_address',
-        'bsc_wallet_address',
-        'image',
-        'last_reward_date',
-        'last_login_at',
-
-    ];
+    'name',
+    'email',
+    'password',
+    'referral_code',
+    'referred_by',
+    'usdt_wallet_address',
+    'bsc_wallet_address',
+    'country',
+    'country_code',
+    'ip_address',
+    'image',
+    'last_reward_date',
+    'last_login_at',
+];
 
     protected $hidden = [
         'password',

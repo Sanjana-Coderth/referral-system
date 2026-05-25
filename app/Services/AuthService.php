@@ -13,6 +13,7 @@ use Illuminate\Auth\AuthenticationException;
 use App\Services\ReferralService;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 
 class AuthService
 {
@@ -102,41 +103,65 @@ class AuthService
     }
 
     public function register(array $data)
-    {
-        $referralService = new ReferralService();
+{
+    $referralService = new ReferralService();
 
-        if (!empty($data['referred_by_code'])) {
+    $ip = app()->environment('local')
+        ? '8.8.8.8'
+        : request()->ip();
 
-            $referrer = User::where(
-                'referral_code',
-                $data['referred_by_code']
-            )->first();
-        } else {
-            $referrer = User::where(
-                'referral_code',
-                'UNRBPLO0'
-            )->first();
-        }
+    $countryData = $this->getCountryData($ip);
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
-            'referral_code' => $this->generateReferralCode(),
-            'referred_by' => $referrer ? $referrer->id : null,
-            'wallet_balance' => 0
-        ]);
+    if (!empty($data['referred_by_code'])) {
 
-        $tokenData = $this->getToken($user, false);
+        $referrer = User::where(
+            'referral_code',
+            $data['referred_by_code']
+        )->first();
 
-        return [
-            'status' => true,
-            'message' => 'User registered successfully',
-            'tokens' => $tokenData,
-            'data' => $user
-        ];
+    } else {
+
+        $referrer = User::where(
+            'referral_code',
+            'UNRBPLO0'
+        )->first();
     }
 
+    $user = User::create([
+
+        'name' => $data['name'],
+
+        'email' => $data['email'],
+
+        'password' => bcrypt($data['password']),
+
+        'referral_code' =>
+        $this->generateReferralCode(),
+
+        'referred_by' =>
+        $referrer ? $referrer->id : null,
+
+        'wallet_balance' => 0,
+
+        'ip_address' => $ip,
+
+        'country' =>
+        $countryData['country'] ?? null,
+
+        'country_code' =>
+        $countryData['country_code'] ?? null,
+
+    ]);
+
+    $tokenData = $this->getToken($user, false);
+
+    return [
+        'status' => true,
+        'message' => 'User registered successfully',
+        'tokens' => $tokenData,
+        'data' => $user
+    ];
+}
     public function getToken(User $user, bool $remember = false): array
     {
         $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
@@ -323,6 +348,39 @@ class AuthService
             'Verification email resent successfully.'
         ];
     }
+
+    public function getCountryData($ip)
+{
+    try {
+
+        $response = Http::withoutVerifying()->get(
+            "https://ipapi.co/{$ip}/json/"
+        );
+
+        if ($response->successful()) {
+
+            $data = $response->json();
+
+            return [
+
+                'country' =>
+                $data['country_name'] ?? null,
+
+                'country_code' =>
+                strtolower(
+                    $data['country_code'] ?? ''
+                ),
+
+            ];
+        }
+
+    } catch (\Exception $e) {
+
+        return null;
+    }
+
+    return null;
+}
     private function generateReferralCode()
     {
         do {
