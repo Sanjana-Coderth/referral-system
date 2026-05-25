@@ -27,7 +27,7 @@ class DashboardService
                 'email' => $user->email,
                 'referral_code' => $user->referral_code,
                 'email_verified_at' =>
-                    $user->email_verified_at,
+                $user->email_verified_at,
             ],
             'wallet' => [
                 'balance' => $user->wallet_balance,
@@ -125,15 +125,15 @@ class DashboardService
     public function recentUsers()
     {
         return User::latest()
-    ->take(10)
-    ->get([
-        'id',
-        'name',
-        'email',
-        'country',
-        'country_code',
-        'created_at',
-        'last_login_at'
-    ]);
+            ->take(10)
+            ->get([
+                'id',
+                'name',
+                'email',
+                'country',
+                'country_code',
+                'created_at',
+                'last_login_at'
+            ]);
     }
 }

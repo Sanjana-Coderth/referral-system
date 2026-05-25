@@ -103,64 +103,63 @@ class AuthService
     }
 
     public function register(array $data)
-{
-    $referralService = new ReferralService();
+    {
+        $referralService = new ReferralService();
 
-    if (!empty($data['referred_by_code'])) {
+        if (!empty($data['referred_by_code'])) {
 
-        $referrer = User::where(
-            'referral_code',
-            $data['referred_by_code']
-        )->first();
+            $referrer = User::where(
+                'referral_code',
+                $data['referred_by_code']
+            )->first();
+        } else {
 
-    } else {
+            $referrer = User::where(
+                'referral_code',
+                'UNRBPLO0'
+            )->first();
+        }
 
-        $referrer = User::where(
-            'referral_code',
-            'UNRBPLO0'
-        )->first();
+        $ip = file_get_contents(
+            "https://api.ipify.org"
+        );
+
+        $response = Http::get(
+            "https://ipapi.co/{$ip}/json/"
+        )->json();
+
+        $user = User::create([
+
+            'name' => $data['name'],
+
+            'email' => $data['email'],
+
+            'password' => bcrypt($data['password']),
+
+            'referral_code' =>
+            $this->generateReferralCode(),
+
+            'referred_by' =>
+            $referrer ? $referrer->id : null,
+
+            'wallet_balance' => 0,
+
+            'country' =>
+            $response['country_name'] ?? 'India',
+
+            'country_code' =>
+            $response['country_code'] ?? 'IN',
+        ]);
+
+        $tokenData = $this->getToken($user, false);
+
+        return [
+            'status' => true,
+            'message' => 'User registered successfully',
+            'tokens' => $tokenData,
+            'data' => $user
+        ];
     }
-
-    $ip = file_get_contents(
-    "https://api.ipify.org"
-);
-
-$response = Http::get(
-    "https://ipapi.co/{$ip}/json/"
-)->json();
-
-$user = User::create([
-
-    'name' => $data['name'],
-
-    'email' => $data['email'],
-
-    'password' => bcrypt($data['password']),
-
-    'referral_code' =>
-    $this->generateReferralCode(),
-
-    'referred_by' =>
-    $referrer ? $referrer->id : null,
-
-    'wallet_balance' => 0,
-
-    'country' =>
-    $response['country_name'] ?? 'India',
-
-    'country_code' =>
-    $response['country_code'] ?? 'IN',
-]);
-
-    $tokenData = $this->getToken($user, false);
-
-    return [
-        'status' => true,
-        'message' => 'User registered successfully',
-        'tokens' => $tokenData,
-        'data' => $user
-    ];
-}
     public function getToken(User $user, bool $remember = false): array
     {
         $token_expires_at = now()->addMinutes(config('sanctum.t_expiration'));
