@@ -26,6 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'usdt_wallet_address',
         'bsc_wallet_address',
         'image',
+        'last_reward_date',
         'last_login_at',
 
     ];

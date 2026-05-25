@@ -11,6 +11,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\AuthenticationException;
 use App\Services\ReferralService;
+use App\Services\WalletService;
 use Illuminate\Support\Facades\Hash;
 
 class AuthService
@@ -33,6 +34,59 @@ class AuthService
         $user->update([
             'last_login_at' => now()
         ]);
+
+        $today = now()->toDateString();
+
+        // Check if reward already given today
+        if ($user->last_reward_date !== $today) {
+
+            $points = 0;
+
+            // Silver
+            if (
+                $user->wallet_balance >= 50001 &&
+                $user->wallet_balance <= 100000
+            ) {
+
+                $points = 10;
+            }
+
+            // Gold
+            elseif (
+                $user->wallet_balance >= 100001 &&
+                $user->wallet_balance <= 150000
+            ) {
+
+                $points = 20;
+            }
+
+            // Platinum
+            elseif (
+                $user->wallet_balance >= 150001 &&
+                $user->wallet_balance <= 200000
+            ) {
+
+                $points = 30;
+            }
+
+            // Add reward
+            if ($points > 0) {
+
+                $walletService =
+                    new WalletService();
+
+                $walletService->addBalance(
+                    $user,
+                    $points,
+                    'Daily Login Reward'
+                );
+
+                $user->last_reward_date =
+                    $today;
+
+                $user->save();
+            }
+        }
 
         $remember = filter_var($data['remember_me'] ?? false, FILTER_VALIDATE_BOOLEAN);
 

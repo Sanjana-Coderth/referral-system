@@ -7,12 +7,7 @@ use App\Models\WalletTransaction;
 
 class WalletService
 {
-    public function addBalance(
-        User $user,
-        float $amount,
-        string $description,
-        ?User $fromUser = null
-    ): void {
+    public function addBalance(User $user, float $amount, string $description, ?User $fromUser = null   ): void {
 
         $user->wallet_balance += $amount;
         $user->save();

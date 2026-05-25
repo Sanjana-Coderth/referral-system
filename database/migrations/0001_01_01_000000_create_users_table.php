@@ -23,6 +23,7 @@ return new class extends Migration
             $table->text('usdt_wallet_address')->nullable();
             $table->text('bsc_wallet_address')->nullable();
             $table->string('image')->nullable();
+            $table->date('last_reward_date')->nullable();
             $table->timestamp('last_login_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
