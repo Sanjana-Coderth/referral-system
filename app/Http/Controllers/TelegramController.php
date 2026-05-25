@@ -58,4 +58,22 @@ class TelegramController extends Controller
             'channel_members' => $channelCount,
         ]);
     }
+
+   
+// public function twitter()
+// {
+//     $token = env('TWITTER_BEARER_TOKEN');
+//     $username = env('TWITTER_USERNAME');
+
+//     $response = Http::withHeaders([
+//         'Authorization' => 'Bearer ' . $token,
+//     ])->get(
+//         "https://api.twitter.com/2/users/by/username/$username",
+//         [
+//             'user.fields' => 'public_metrics'
+//         ]
+//     );
+
+//     return response()->json($response->json());
+// }
 }
