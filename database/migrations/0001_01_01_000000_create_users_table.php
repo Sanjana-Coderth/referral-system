@@ -22,9 +22,6 @@ return new class extends Migration
             $table->decimal('wallet_balance', 10, 2)->default(0);
             $table->text('usdt_wallet_address')->nullable();
             $table->text('bsc_wallet_address')->nullable();
-            $table->string('country')->nullable();
-            $table->string('country_code')->nullable();
-            $table->string('ip_address')->nullable();
             $table->string('image')->nullable();
             $table->date('last_reward_date')->nullable();
             $table->timestamp('last_login_at')->nullable();

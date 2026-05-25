@@ -13,7 +13,6 @@ use Illuminate\Auth\AuthenticationException;
 use App\Services\ReferralService;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
 
 class AuthService
 {
@@ -106,12 +105,6 @@ class AuthService
 {
     $referralService = new ReferralService();
 
-    $ip = app()->environment('local')
-        ? '8.8.8.8'
-        : request()->ip();
-
-    $countryData = $this->getCountryData($ip);
-
     if (!empty($data['referred_by_code'])) {
 
         $referrer = User::where(
@@ -142,15 +135,6 @@ class AuthService
         $referrer ? $referrer->id : null,
 
         'wallet_balance' => 0,
-
-        'ip_address' => $ip,
-
-        'country' =>
-        $countryData['country'] ?? null,
-
-        'country_code' =>
-        $countryData['country_code'] ?? null,
-
     ]);
 
     $tokenData = $this->getToken($user, false);
@@ -349,38 +333,6 @@ class AuthService
         ];
     }
 
-    public function getCountryData($ip)
-{
-    try {
-
-        $response = Http::withoutVerifying()->get(
-            "https://ipapi.co/{$ip}/json/"
-        );
-
-        if ($response->successful()) {
-
-            $data = $response->json();
-
-            return [
-
-                'country' =>
-                $data['country_name'] ?? null,
-
-                'country_code' =>
-                strtolower(
-                    $data['country_code'] ?? ''
-                ),
-
-            ];
-        }
-
-    } catch (\Exception $e) {
-
-        return null;
-    }
-
-    return null;
-}
     private function generateReferralCode()
     {
         do {
