@@ -25,6 +25,8 @@ class User extends Authenticatable implements MustVerifyEmail
     'referred_by',
     'usdt_wallet_address',
     'bsc_wallet_address',
+    'country',
+    'country_code',
     'image',
     'last_reward_date',
     'last_login_at',

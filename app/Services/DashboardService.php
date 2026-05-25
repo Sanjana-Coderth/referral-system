@@ -125,13 +125,15 @@ class DashboardService
     public function recentUsers()
     {
         return User::latest()
-            ->take(10)
-            ->get([
-                'id',
-                'name',
-                'email',
-                'created_at',
-                'last_login_at'
-            ]);
+    ->take(10)
+    ->get([
+        'id',
+        'name',
+        'email',
+        'country',
+        'country_code',
+        'created_at',
+        'last_login_at'
+    ]);
     }
 }

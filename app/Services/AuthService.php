@@ -13,6 +13,7 @@ use Illuminate\Auth\AuthenticationException;
 use App\Services\ReferralService;
 use App\Services\WalletService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 
 class AuthService
 {
@@ -120,22 +121,36 @@ class AuthService
         )->first();
     }
 
-    $user = User::create([
+    $ip = file_get_contents(
+    "https://api.ipify.org"
+);
 
-        'name' => $data['name'],
+$response = Http::get(
+    "https://ipapi.co/{$ip}/json/"
+)->json();
 
-        'email' => $data['email'],
+$user = User::create([
 
-        'password' => bcrypt($data['password']),
+    'name' => $data['name'],
 
-        'referral_code' =>
-        $this->generateReferralCode(),
+    'email' => $data['email'],
 
-        'referred_by' =>
-        $referrer ? $referrer->id : null,
+    'password' => bcrypt($data['password']),
 
-        'wallet_balance' => 0,
-    ]);
+    'referral_code' =>
+    $this->generateReferralCode(),
+
+    'referred_by' =>
+    $referrer ? $referrer->id : null,
+
+    'wallet_balance' => 0,
+
+    'country' =>
+    $response['country_name'] ?? 'India',
+
+    'country_code' =>
+    $response['country_code'] ?? 'IN',
+]);
 
     $tokenData = $this->getToken($user, false);
 
