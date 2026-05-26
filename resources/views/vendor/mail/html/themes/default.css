@@ -1,0 +1,151 @@
+/* Base */
+
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    position: relative;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    background: #020617;
+    color: #ffffff;
+    height: 100%;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+/* Wrapper */
+
+.wrapper {
+    background: #010816;
+    margin: 0;
+    padding: 60px 0;
+    width: 100%;
+}
+
+/* Content */
+
+.content {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+/* Main Card */
+
+.inner-body {
+    background: #06152d;
+    border: 1px solid rgba(0,255,255,0.12);
+    border-radius: 28px;
+    box-shadow:
+        0 0 30px rgba(0,255,255,0.08),
+        0 0 80px rgba(0,140,255,0.08);
+    margin: 0 auto;
+    width: 700px;
+}
+
+/* Inner Padding */
+
+.content-cell {
+    max-width: 100vw;
+    padding: 65px 55px;
+}
+
+/* Logo */
+
+.header img {
+    width: 260px !important;
+    max-width: 260px !important;
+    margin-bottom: 10px;
+}
+
+/* Heading */
+
+h1 {
+    color: #00e5ff;
+    font-size: 56px;
+    font-weight: 800;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 15px rgba(0,229,255,0.25);
+}
+
+/* Text */
+
+p,
+ul,
+ol,
+blockquote {
+    color: #f1f5f9;
+    font-size: 24px;
+    line-height: 1.9em;
+    text-align: center;
+    margin-top: 0;
+}
+
+/* Button Area */
+
+.action {
+    text-align: center;
+    padding: 25px 0 35px 0;
+}
+
+/* Button */
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 16px;
+    color: #ffffff !important;
+    display: inline-block;
+    overflow: hidden;
+    text-decoration: none;
+    background: linear-gradient(90deg,#00f5d4,#00bbff);
+    padding: 20px 52px;
+    font-size: 22px;
+    font-weight: 700;
+    box-shadow:
+        0 0 20px rgba(0,255,255,0.25),
+        0 0 45px rgba(0,187,255,0.18);
+    transition: all 0.3s ease;
+}
+
+/* Footer Text */
+
+.footer p {
+    color: #94a3b8;
+    font-size: 15px;
+    text-align: center;
+}
+
+/* URL Section */
+
+.subcopy {
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin-top: 40px;
+    padding-top: 30px;
+}
+
+.subcopy p {
+    color: #94a3b8;
+    font-size: 15px;
+    line-height: 2em;
+    text-align: left;
+}
+
+/* Links */
+
+a {
+    color: #00e5ff;
+}
+
+/* URL Break */
+
+.break-all {
+    word-break: break-all;
+}
