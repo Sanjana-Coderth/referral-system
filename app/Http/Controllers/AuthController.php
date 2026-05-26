@@ -317,6 +317,17 @@ class AuthController extends Controller
 
             $user = $request->user();
 
+            $walletService =
+                new \App\Services\WalletService();
+
+            $walletService->addBalance(
+                $user,
+                1000,
+                'Email Verification Reward'
+            );
+
+            $user = $request->user();
+
             $referrer = User::find($user->referred_by);
 
             if ($referrer) {

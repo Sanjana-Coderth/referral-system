@@ -258,11 +258,8 @@ class AuthService
         }
     }
 
-    public function verifyEmail(
-        string $id,
-        string $hash
-    ) {
-
+    public function verifyEmail(string $id, string $hash) 
+    {
         $user = User::find($id);
 
         if (!$user) {
