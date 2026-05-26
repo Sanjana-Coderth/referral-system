@@ -29,32 +29,32 @@ class VerifyEmail extends Notification implements ShouldQueue
     /**
      * Build mail notification.
      */
-public function toMail($notifiable)
-{
-    $backendUrl = $this->verificationUrl($notifiable);
+    public function toMail($notifiable)
+    {
+        $backendUrl = $this->verificationUrl($notifiable);
 
-    $parsed = parse_url($backendUrl);
+        $parsed = parse_url($backendUrl);
 
-    $path = $parsed['path'];
+        $path = $parsed['path'];
 
-    $query = $parsed['query'];
+        $query = $parsed['query'];
 
-    $path = str_replace('/api/verify-email', '', $path);
+        $path = str_replace('/api/verify-email', '', $path);
 
-    $verifyUrl =
-        env("APP_FRONTEND_URL") .
-        "/verify-email" .
-        $path .
-        "?" .
-        $query;
+        $verifyUrl =
+            env("APP_FRONTEND_URL") .
+            "/verify-email" .
+            $path .
+            "?" .
+            $query;
 
-    return (new MailMessage)
-        ->subject('Verify Email')
-        ->view('emails.verify-email', [
-            'url' => $verifyUrl,
-            'user' => $notifiable,
-        ]);
-}
+        return (new MailMessage)
+            ->subject('Verify Email')
+            ->view('emails.verify-email', [
+                'url' => $verifyUrl,
+                'user' => $notifiable,
+            ]);
+    }
 
     /**
      * Email template.

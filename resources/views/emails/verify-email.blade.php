@@ -12,11 +12,10 @@
         padding:40px;
         background:#050816;
         font-family:Arial,sans-serif;
-    "
->
+    ">
 
-<div
-    style="
+    <div
+        style="
         max-width:650px;
         margin:auto;
         background:#0f172a;
@@ -25,44 +24,40 @@
         border:1px solid rgba(0,255,255,0.12);
         box-shadow:0 0 30px rgba(0,255,255,0.12);
         text-align:center;
-    "
->
+    ">
 
-    <img
-    src="{{ url('logo/logo.png') }}"
-    width="240"
-    style="
+        <img
+            src="{{ url('logo/logo.png') }}"
+            width="240"
+            style="
         display:block;
         margin:auto auto 35px;
-    "
->
+    ">
 
-    <h1
-        style="
+        <h1
+            style="
             color:#00e5ff;
             font-size:34px;
             margin-bottom:20px;
             font-weight:bold;
-        "
-    >
-        Verify Your Email
-    </h1>
+        ">
+            Verify Your Email
+        </h1>
 
-    <p
-        style="
+        <p
+            style="
             color:#cbd5e1;
             font-size:17px;
             line-height:1.8;
             margin-bottom:35px;
-        "
-    >
-        Welcome to Referral System.<br>
-        Please verify your email address to activate your account.
-    </p>
+        ">
+            Welcome to Referral System.<br>
+            Please verify your email address to activate your account.
+        </p>
 
-    <a
-        href="{{ $url }}"
-        style="
+        <a
+            href="{{ $url }}"
+            style="
             background:linear-gradient(135deg,#00f5c3,#009dff);
             padding:16px 36px;
             border-radius:14px;
@@ -72,24 +67,22 @@
             display:inline-block;
             font-size:16px;
             box-shadow:0 0 20px rgba(0,255,255,0.25);
-        "
-    >
-        Verify Email
-    </a>
+        ">
+            Verify Email
+        </a>
 
-    <div
-        style="
+        <div
+            style="
             margin-top:40px;
             color:#94a3b8;
             font-size:14px;
             line-height:1.7;
-        "
-    >
-        If you did not create an account, no further action is required.
-    </div>
+        ">
+            If you did not create an account, no further action is required.
+        </div>
 
-    <div
-    style="
+        <div
+            style="
         margin-top:40px;
         padding-top:25px;
         border-top:1px solid rgba(255,255,255,0.1);
@@ -98,24 +91,23 @@
         line-height:1.8;
         text-align:left;
         word-break:break-all;
-    "
->
-    If you're having trouble clicking the button, copy and paste the URL below into your browser:
+    ">
+            If you're having trouble clicking the button, copy and paste the URL below into your browser:
 
-    <br><br>
+            <br><br>
 
-    <a
-        href="{{ $url }}"
-        style="
+            <a
+                href="{{ $url }}"
+                style="
             color:#00e5ff;
             text-decoration:none;
-        "
-    >
-        {{ $url }}
-    </a>
-</div>
+        ">
+                {{ $url }}
+            </a>
+        </div>
 
-</div>
+    </div>
 
 </body>
+
 </html>
