@@ -253,11 +253,7 @@ class AuthController extends Controller
      *      summary="Email Resend",
      *      operationId="Resend",
      *
-     *      @OA\Response(response=200, description="Success",
-     *          @OA\MediaType(
-     *              mediaType="application/json"
-     *          )
-     *      ),
+     *      @OA\Response(response=200, description="Success"),
      *      @OA\Response(response=400, description="Bad Request"),
      *      @OA\Response(response=401, description="Unauthenticated"),
      *      @OA\Response(response=403, description="Forbidden"),
@@ -268,16 +264,23 @@ class AuthController extends Controller
      */
     public function resend(): JsonResponse
     {
-        if (request()->user()->sendEmailVerificationNotification()) {
+        $user = request()->user();
 
-            return response()->json(['message' => 'Already Verified']);
+        // Check already verified
+        if ($user->hasVerifiedEmail()) {
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Already Verified'
+            ]);
         }
 
-        request()->user()->sendEmailVerificationNotification();
+        // Send verification mail
+        $user->sendEmailVerificationNotification();
 
         return response()->json([
-            'message' =>
-            'Verification email resent successfully.'
+            'status' => true,
+            'message' => 'Verification email resent successfully.'
         ]);
     }
 
@@ -307,42 +310,9 @@ class AuthController extends Controller
      *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
-    public function verifyEmail(EmailVerificationRequest $request): JsonResponse
+    public function verifyEmail(EmailVerificationRequest $request): JsonResponse 
     {
-        if (request()->user()->sendEmailVerificationNotification()) {
-            return response()->json(['message' => 'Already Verified']);
-        }
-
-        if ($request->user()->markEmailAsVerified()) {
-
-            $user = $request->user();
-
-            $walletService =
-                new \App\Services\WalletService();
-
-            $walletService->addBalance(
-                $user,
-                1000,
-                'Email Verification Reward'
-            );
-
-            $user = $request->user();
-
-            $referrer = User::find($user->referred_by);
-
-            if ($referrer) {
-                $referralService = new \App\Services\ReferralService();
-
-                $referralService->distributeLevelIncome($referrer, $user);
-            }
-
-            event(new Verified($request->user()));
-        }
-
-        return response()->json([
-            'message' =>
-            'Your email address has been verified successfully!'
-        ]);
+        return response()->json($this->authService->verifyEmail($request->route('id'), $request->route('hash')));
     }
 
     /**

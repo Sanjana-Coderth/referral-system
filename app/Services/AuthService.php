@@ -151,12 +151,9 @@ class AuthService
             $response['country_code'] ?? 'IN',
         ]);
 
-        $tokenData = $this->getToken($user, false);
-
         return [
             'status' => true,
             'message' => 'User registered successfully',
-            'tokens' => $tokenData,
             'data' => $user
         ];
     }
@@ -258,11 +255,8 @@ class AuthService
         }
     }
 
-    public function verifyEmail(
-        string $id,
-        string $hash
-    ) {
-
+    public function verifyEmail(string $id, string $hash): array
+    {
         $user = User::find($id);
 
         if (!$user) {
@@ -284,6 +278,7 @@ class AuthService
             ];
         }
 
+        // Prevent duplicate reward
         if ($user->hasVerifiedEmail()) {
 
             return [
@@ -292,16 +287,28 @@ class AuthService
             ];
         }
 
+        // Verify email
         $user->markEmailAsVerified();
 
-        $referralService =
-            new ReferralService();
+        // Give reward
+        $walletService =
+            new WalletService();
 
+        $walletService->addBalance(
+            $user,
+            1000,
+            'Email Verification Reward'
+        );
+
+        // Referral income
         $referrer = User::find(
             $user->referred_by
         );
 
         if ($referrer) {
+
+            $referralService =
+                new ReferralService();
 
             $referralService
                 ->distributeLevelIncome(
@@ -310,40 +317,14 @@ class AuthService
                 );
         }
 
-        event(new \Illuminate\Auth\Events\Verified($user));
+        event(
+            new \Illuminate\Auth\Events\Verified($user)
+        );
 
         return [
             'status' => true,
             'message' =>
             'Your email address has been verified successfully!'
-        ];
-    }
-
-    public function resend()
-    {
-        /** @var \App\Models\User|null $user */
-        $user = Auth::user();
-
-        if (!$user) {
-
-            return [
-                'status' => false,
-                'message' => 'Unauthenticated'
-            ];
-        }
-
-        if ($user->hasVerifiedEmail()) {
-
-            return [
-                'status' => true,
-                'message' => 'Already Verified'
-            ];
-        }
-
-        return [
-            'status' => true,
-            'message' =>
-            'Verification email resent successfully.'
         ];
     }
 
