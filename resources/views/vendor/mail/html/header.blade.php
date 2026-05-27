@@ -1,10 +1,9 @@
-@props(['url'])
-<tr>
-<td class="header" align="center">
-    <a href="{{ $url }}" style="display:inline-block;">
-        <img src="{{ asset('logo.png') }}"
-             class="logo"
-             alt="Referral System">
-    </a>
-</td>
-</tr>
+<div style="text-align:center;margin-bottom:35px;">
+
+<img
+src="http://referral.local/logo/logo.png"
+width="240"
+style="display:block;margin:auto;"
+>
+
+</div>

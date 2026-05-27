@@ -7,13 +7,59 @@
 </x-slot:header>
 
 {{-- Body --}}
-{{ $slot }}
+<div style="text-align:center;color:white;">
+
+{!! str_replace(
+'Click button below to verify your email.',
+'
+
+<h1 style="
+color:#00e5ff;
+font-size:36px;
+margin-bottom:25px;
+">
+Verify Your Email
+</h1>
+
+<p style="
+font-size:16px;
+line-height:1.6;
+color:white;
+">
+Welcome to Referral System.<br>
+Please verify your email address to activate your account.
+</p>
+
+',
+
+str_replace(
+[
+    '# Hello!',
+    'Regards,<br>
+Laravel'
+],
+[
+    '',
+    '<p style="
+        margin-top:30px;
+        font-size:15px;
+        color:#94a3b8;
+    ">
+    If you did not create an account, no further action is required.
+    </p>'
+],
+$slot)
+
+) !!}
+
+</div>
+
 
 {{-- Subcopy --}}
 @isset($subcopy)
 <x-slot:subcopy>
 <x-mail::subcopy>
-{{ $subcopy }}
+{!! $subcopy !!}
 </x-mail::subcopy>
 </x-slot:subcopy>
 @endisset

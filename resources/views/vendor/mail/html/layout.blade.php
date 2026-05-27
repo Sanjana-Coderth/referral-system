@@ -1,58 +1,73 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<!DOCTYPE html>
+<html>
 <head>
+<meta charset="UTF-8">
 <title>{{ config('app.name') }}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
-<style>
-@media only screen and (max-width: 600px) {
-.inner-body {
-width: 100% !important;
-}
-
-.footer {
-width: 100% !important;
-}
-}
-
-@media only screen and (max-width: 500px) {
-.button {
-width: 100% !important;
-}
-}
-</style>
-{!! $head ?? '' !!}
 </head>
-<body>
 
-<table class="wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-<tr>
-<td align="center">
-<table class="content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
-{!! $header ?? '' !!}
+<body
+style="
+margin:0;
+padding:40px;
+background:#050816;
+font-family:Arial,sans-serif;
+"
+>
 
-<!-- Email Body -->
-<tr>
-<td class="body" width="100%" cellpadding="0" cellspacing="0" style="border: hidden !important;">
-<table class="inner-body" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
-<!-- Body content -->
-<tr>
-<td class="content-cell">
-{!! Illuminate\Mail\Markdown::parse($slot) !!}
+<div
+style="
+max-width:650px;
+margin:auto;
+background:#0f172a;
+border-radius:24px;
+padding:50px;
+border:1px solid rgba(0,255,255,0.12);
+box-shadow:0 0 30px rgba(0,255,255,0.12);
+"
+>
 
-{!! $subcopy ?? '' !!}
-</td>
-</tr>
-</table>
-</td>
-</tr>
+{{-- HEADER --}}
+{{ $header ?? '' }}
 
-{!! $footer ?? '' !!}
-</table>
-</td>
-</tr>
-</table>
+{{-- BODY --}}
+<div
+style="
+color:white;
+font-size:16px;
+line-height:1.8;
+"
+>
+{!! $slot !!}
+</div>
+
+{{-- SUBCOPY --}}
+@if (isset($subcopy))
+<div
+style="
+margin-top:15px;
+padding-top:8px;
+border-top:1px solid #1e293b;
+color:#94a3b8;
+font-size:14px;
+"
+>
+{!! $subcopy !!}
+</div>
+@endif
+
+{{-- FOOTER --}}
+<div
+style="
+margin-top:40px;
+text-align:center;
+color:#64748b;
+font-size:13px;
+"
+>
+© {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+</div>
+
+</div>
+
 </body>
 </html>
