@@ -125,15 +125,15 @@ blockquote {
 
 /* URL Section */
 
-.subcopy {
+/* .subcopy {
     border-top: 1px solid rgba(255,255,255,0.08);
     margin-top: 40px;
     padding-top: 30px;
-}
+} */
 
 .subcopy p {
     color: #94a3b8;
-    font-size: 15px;
+    font-size: 13px;
     line-height: 2em;
     text-align: left;
 }
