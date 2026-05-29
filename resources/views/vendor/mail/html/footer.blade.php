@@ -1,11 +1,17 @@
 <tr>
 <td>
-<table class="footer" align="center" width="570" cellpadding="0" cellspacing="0" role="presentation">
-<tr>
-<td class="content-cell" align="center">
-{{ Illuminate\Mail\Markdown::parse($slot) }}
-</td>
-</tr>
-</table>
+
+<div
+style="
+margin-top:40px;
+padding-top:20px;
+text-align:center;
+color:#64748b;
+font-size:13px;
+"
+>
+© {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+</div>
+
 </td>
 </tr>

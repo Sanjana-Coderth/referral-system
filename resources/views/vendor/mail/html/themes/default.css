@@ -44,7 +44,9 @@ body {
     box-shadow:
         0 0 30px rgba(0,255,255,0.08),
         0 0 80px rgba(0,140,255,0.08);
-    margin: 0 auto;
+    margin: 0 auto 45px auto !important;
+    padding-bottom: 45px !important;
+overflow: hidden !important;
     width: 700px;
 }
 
