@@ -151,9 +151,12 @@ class AuthService
             $response['country_code'] ?? 'IN',
         ]);
 
+        $tokenData = $this->getToken($user);
+
         return [
             'status' => true,
             'message' => 'User registered successfully',
+            'tokens' => $tokenData,
             'data' => $user
         ];
     }
