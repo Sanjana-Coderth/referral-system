@@ -18,26 +18,26 @@ class WalletController extends Controller
      *     tags={"Wallet"},
      *     operationId="getWalletBalance",
      *     security={{"Bearer": {}}},
+     *
      *     @OA\Response(
      *         response=200,
-     *         description="Wallet balance fetched successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="wallet_balance", type="number", example=150)
+     *         description="Success",
+     *         @OA\MediaType(
+     *             mediaType="application/json"
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated"
-     *     )
+     *
+     *     @OA\Response(response=400, description="Bad Request"),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Resource Not Found"),
+     *     @OA\Response(response=422, description="Unprocessable Entity"),
+     *     @OA\Response(response=500, description="Internal Server Error")
      * )
      */
     public function balance(Request $request): JsonResponse
     {
-        return response()->json([
-            'status' => true,
-            'wallet_balance' => $request->user()->wallet_balance
-        ]);
+        return response()->json(['wallet_balance' => $request->user()->wallet_balance]);
     }
 
     /**
@@ -48,7 +48,14 @@ class WalletController extends Controller
      *     operationId="getWalletTransactions",
      *     security={{"Bearer": {}}},
      *
-     *     @OA\Response(response=200, description="Wallet transactions fetched successfully"),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\MediaType(
+     *             mediaType="application/json"
+     *         )
+     *     ),
+     *
      *     @OA\Response(response=400, description="Bad Request"),
      *     @OA\Response(response=401, description="Unauthenticated"),
      *     @OA\Response(response=403, description="Forbidden"),
@@ -59,13 +66,7 @@ class WalletController extends Controller
      */
     public function transactions(Request $request): JsonResponse
     {
-        $transactions = WalletTransaction::where('user_id', $request->user()->id)
-            ->latest()
-            ->get();
-
-        return response()->json([
-            'status' => true,
-            'data' => $transactions
-        ]);
+        $transactions = WalletTransaction::where('user_id', $request->user()->id)->latest()->get();
+        return response()->json(['data' => $transactions]);
     }
 }
