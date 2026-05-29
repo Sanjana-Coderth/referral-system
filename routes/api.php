@@ -16,6 +16,9 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/default-referral', [AuthController::class, 'defaultReferral']);
 
+  //Telegram
+    Route::get('/telegram-stats', [TelegramController::class, 'stats']);
+    
 // PROTECTED ROUTES
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -55,8 +58,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/top-referrals', [ReferralController::class, 'topReferrals']);
 
-    //Telegram
-    Route::get('/telegram-stats', [TelegramController::class, 'stats']);
     //Twitter
     // Route::get('/twitter', [TelegramController::class, 'twitter']);
 
