@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
@@ -45,13 +46,9 @@ class AuthController extends Controller
      *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $data = [
-            'email' => $request->email,
-            'password' => $request->password,
-            'remember_me' => $request->remember_me,
-        ];
+        $data = $request->validated();
 
         return response()->json(
             $this->authService->login($data)
@@ -63,6 +60,7 @@ class AuthController extends Controller
      *     path="/register",
      *     summary="User Register",
      *     tags={"Auth"},
+     *     security={{"Bearer": {}}},
      *     operationId="registerUser",
      *
      *     @OA\Parameter(ref="#/components/parameters/register_name"),
@@ -107,18 +105,12 @@ class AuthController extends Controller
      *         )
      *     ),
      *
-     *     @OA\Response(
-     *         response=400,
-     *         description="Bad Request"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Not Found"
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Internal Server Error"
-     *     )
+     *     @OA\Response(response=400, description="Bad Request"),
+     *     @OA\Response(response=401, description="Unauthenticated"),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Resource Not Found"),
+     *     @OA\Response(response=422, description="Unprocessable Entity"),
+     *     @OA\Response(response=500, description="Internal Server Error")
      * )
      */
     public function defaultReferral()
@@ -249,16 +241,24 @@ class AuthController extends Controller
      * @OA\Get(
      *      path="/resend",
      *      tags={"Auth"},
-     *      security={{"Bearer": {}}},
      *      summary="Email Resend",
-     *      operationId="Resend",
+     *      operationId="resendEmail",
+     *      security={{"Bearer": {}}},
      *
-     *      @OA\Response(response=200, description="Success"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\MediaType(
+     *              mediaType="application/json"
+     *          )
+     *      ),
+     *
      *      @OA\Response(response=400, description="Bad Request"),
      *      @OA\Response(response=401, description="Unauthenticated"),
      *      @OA\Response(response=403, description="Forbidden"),
      *      @OA\Response(response=404, description="Resource Not Found"),
      *      @OA\Response(response=422, description="Unprocessable Entity"),
+     *      @OA\Response(response=429, description="Too Many Requests"),
      *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
@@ -310,7 +310,7 @@ class AuthController extends Controller
      *      @OA\Response(response=500, description="Internal Server Error")
      * )
      */
-    public function verifyEmail(EmailVerificationRequest $request): JsonResponse 
+    public function verifyEmail(EmailVerificationRequest $request): JsonResponse
     {
         return response()->json($this->authService->verifyEmail($request->route('id'), $request->route('hash')));
     }

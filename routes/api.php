@@ -16,20 +16,18 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/default-referral', [AuthController::class, 'defaultReferral']);
 
-Route::get('/telegram-stats', [TelegramController::class, 'stats']);
-// Route::get('/twitter', [TelegramController::class, 'twitter']);
 // PROTECTED ROUTES
 Route::middleware('auth:sanctum')->group(function () {
 
     // AUTH
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::get('/resend', [AuthController::class, 'resend']);
-
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
 
-    Route::post('/verify-email/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware('signed')
-        ->name('user.verification.verify');
+    Route::middleware('throttle:6,1')->group(function () {
+        Route::get('/resend', [AuthController::class, 'resend']);
+        Route::post('/verify-email/{id}/{hash}',[AuthController::class, 'verifyEmail'])->middleware('signed')->name('user.verification.verify');
+    });
 
     // PROFILE
     Route::get('/profile', [ProfileController::class, 'profile']);
@@ -56,5 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/referral-tree', [ReferralController::class, 'tree']);
 
     Route::get('/top-referrals', [ReferralController::class, 'topReferrals']);
+
+    //Telegram
+    Route::get('/telegram-stats', [TelegramController::class, 'stats']);
+    //Twitter
+    // Route::get('/twitter', [TelegramController::class, 'twitter']);
 
 });

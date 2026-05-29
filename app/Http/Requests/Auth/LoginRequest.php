@@ -40,8 +40,10 @@ class LoginRequest extends FormRequest
         return [
             'email' => 'required|email',
             'password' => 'required|min:6',
-            'remember_me' => 'nullable|boolean',
-            'captcha' => 'required',
+            'remember_me' => 'required|in:true,false,1,0',
+            'captcha' => app()->environment('local')
+                ? 'nullable'
+                : 'required',
         ];
     }
 }

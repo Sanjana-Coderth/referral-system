@@ -10,9 +10,22 @@ class TopReferralService
     {
         $perPage = $data['per_page'] ?? 10;
 
+        $search = $data['search'] ?? null;
+
         // GLOBAL TOP 3
-        $topThree = User::withCount('referrals')
-            ->orderByDesc('referrals_count')->orderBy('updated_at', 'asc')->take(3)
+        $topThreeQuery = User::withCount('referrals');
+
+        if ($search) {
+            $topThreeQuery->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $topThree = $topThreeQuery
+            ->orderByDesc('referrals_count')
+            ->orderBy('updated_at', 'asc')
+            ->take(3)
             ->get([
                 'id',
                 'name',
@@ -22,8 +35,18 @@ class TopReferralService
             ]);
 
         // PAGINATION DATA
-        $users = User::withCount('referrals')
-            ->orderByDesc('referrals_count')->orderBy('updated_at', 'asc')->take(3)
+        $query = User::withCount('referrals');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $users = $query
+            ->orderByDesc('referrals_count')
+            ->orderBy('updated_at', 'asc')
             ->paginate($perPage, [
                 'id',
                 'name',

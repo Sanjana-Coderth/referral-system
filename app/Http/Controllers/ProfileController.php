@@ -41,10 +41,7 @@ class ProfileController extends Controller
      */
     public function profile(): JsonResponse
     {
-        return response()->json([
-            'status' => true,
-            'data' => request()->user()
-        ]);
+        return response()->json(['data' => request()->user()]);
     }
 
     /**
@@ -76,14 +73,8 @@ class ProfileController extends Controller
      */
     public function updateProfile(ProfileUpdateRequest $request): JsonResponse
     {
-
-        $this->profileService->updateProfile(
-            $request->validated()
-        );
-
-        return response()->json([
-            'message' => 'Profile updated successfully.'
-        ]);
+        $this->profileService->updateProfile($request->validated());
+        return response()->json(['message' => 'Profile updated successfully.']);
     }
 
     /**
@@ -114,13 +105,7 @@ class ProfileController extends Controller
      */
     public function changePassword(ChangePasswordRequest $request): JsonResponse
     {
-        $this->profileService->changePassword(
-            $request->validated()
-        );
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Password changed successfully.'
-        ]);
+        $this->profileService->changePassword($request->validated());
+        return response()->json(['message' => 'Password changed successfully.']);
     }
 }
